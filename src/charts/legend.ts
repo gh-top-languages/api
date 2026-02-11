@@ -1,10 +1,17 @@
-import { LEGEND_STYLES } from "../constants/styles.js";
+import { LEGEND_STYLES } from "../constants/styles";
+import { Language, Theme } from "../types";
 
-export function createLegend(languages, isShifted, selectedTheme, legendStartX, stroke) {
+export function createLegend(
+  languages: Language[],
+  isShifted: boolean,
+  selectedTheme: Theme,
+  legendStartX: number,
+  stroke: boolean
+): string {
   const numLangs = languages.length;
 
   return languages.map((lang, i) => {
-    let x, y;
+    let x: number, y: number;
 
     if (!isShifted) {
       x = legendStartX;
