@@ -1,6 +1,14 @@
-import { TITLE_STYLES } from "../constants/styles.js"
+import { TITLE_STYLES } from "../constants/styles"
 
-export function renderSvg(width, height, background, segments, legend, title, textColour) {
+export function renderSvg(
+  width: number,
+  height: number,
+  background: string,
+  segments: string,
+  legend: string,
+  title: string,
+  textColour: string
+): string {
   const titleElement = title ? `
     <text 
       x="${width/2}" 

@@ -14,6 +14,8 @@ export type Geometry = {
   OUTER_RADIUS: number;
 };
 
+export type ChartType = "donut" | "pie";
+
 export type ChartResult = {
   segments: string;
   legend: string;
@@ -22,4 +24,5 @@ export type ChartResult = {
 export type Theme = {
   colours: string[];
   text: string;
+  bg: string;
 };
