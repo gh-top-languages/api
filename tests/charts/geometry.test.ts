@@ -4,6 +4,7 @@ import {
   describeSegment,
   createDonutSegments
 } from "../../src/charts/geometry.js";
+import type { Language } from "../../src/types.js";
 
 const mockGeometry = { CENTER_Y: 100, INNER_RADIUS: 30, OUTER_RADIUS: 50 };
 
@@ -28,8 +29,9 @@ describe("donut geometry", () => {
   });
 
   it("describeSegment: segments have stroke when enabled", () => {
+    const langs: Language[] = [{ lang: "JS", pct: 50 }];
     const paths = createDonutSegments(
-      [{ pct: 50 }],
+      langs,
       100,
       mockGeometry,
       ["#f00"],
@@ -39,7 +41,7 @@ describe("donut geometry", () => {
   });
 
   it("createDonutSegments: single lang full circle", () => {
-    const langs = [{ pct: 100 }];
+    const langs: Language[] = [{ lang: "JS", pct: 100 }];
     const paths = createDonutSegments(
       langs,
       100,
@@ -51,7 +53,11 @@ describe("donut geometry", () => {
   });
 
   it("createDonutSegments: multi-lang sums to 360°", () => {
-    const langs = [{ pct: 33 }, { pct: 33 }, { pct: 34 }];
+    const langs: Language[] = [
+      { lang: "JS", pct: 33 }, 
+      { lang: "TS", pct: 33 }, 
+      { lang: "PY", pct: 34 }
+    ];
     const paths = createDonutSegments(
       langs,
       100,
