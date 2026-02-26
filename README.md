@@ -84,6 +84,7 @@ To get 10 languages, a dark theme, and a custom title:
 
 ### Prerequisites
 - Node.js 18+
+- TypeScript 5.0+
 - (Optional) Vercel or other Node.js hosting
 
 ### Installation
