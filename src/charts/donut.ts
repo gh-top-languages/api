@@ -48,7 +48,7 @@ export function generateDonutChart(
     selectedTheme,
     legendStartX,
     useStroke
-  )
+  );
 
   return { segments, legend };
 }

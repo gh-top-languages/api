@@ -1,10 +1,13 @@
 {
   "compilerOptions": {
+    // Module/Target
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "moduleDetection": "force",
     "outDir": "./dist",
 
+    // Core Strictness
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -14,24 +17,35 @@
     "noImplicitThis": true,
     "useUnknownInCatchVariables": true,
 
-    "allowUnusedLabels": false,
-    "allowUnreachableCode": false,
-    "exactOptionalPropertyTypes": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
+    // Unused Code Elimination
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noImplicitReturns": true,
+    "importsNotUsedAsValues": "remove",
+    "preserveValueImports": false,
+
+    // Safety/Validation
+    "noErrorTruncation": true,
+    "exactOptionalPropertyTypes": true,
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true,
     "noUncheckedSideEffectImports": true,
-    "useDefineForClassFields": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
 
+    // Code Quality
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "useDefineForClassFields": true,
+
+    // Build/Output
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "checkJs": false,
+    "noEmit": true
   },
   "include": [
     "./src/**/*.ts",
