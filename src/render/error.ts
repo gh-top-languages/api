@@ -1,7 +1,13 @@
 import { THEMES } from "../constants/themes.js";
 import { ERROR_STYLES } from "../constants/styles.js"
+import type { Theme } from "../types.js";
 
-export function renderError(message, width, height, selectedTheme){
+export function renderError(
+  message: string,
+  width: number,
+  height: number,
+  selectedTheme?: Theme
+): string {
   const background = selectedTheme?.bg || THEMES.default.bg; 
   return `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">

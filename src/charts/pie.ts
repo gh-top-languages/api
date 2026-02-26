@@ -1,12 +1,13 @@
 import { createDonutSegments } from "./geometry.js";
 import { DONUT_GEOMETRY } from "../constants/geometry.js";
 import { createLegend } from "./legend.js";
-import {
-  LEGEND_SHIFT_THRESHOLD,
-  LEGEND_STYLES
-} from "../constants/styles.js";
+import { LEGEND_SHIFT_THRESHOLD, LEGEND_STYLES } from "../constants/styles.js";
+import type { Language, Theme, ChartResult } from "../types.js";
 
-function calculatePieCenter(width, isShifted) {
+function calculatePieCenter(
+  width: number,
+  isShifted: boolean
+): number {
   const legendWidth = isShifted 
     ? LEGEND_STYLES.COLUMN_WIDTH * 2
     : LEGEND_STYLES.WIDTH;
@@ -15,11 +16,19 @@ function calculatePieCenter(width, isShifted) {
   return availableSpace / 2;
 }
 
-function calculateLegendStartX(chartCenterX, pieRadius) {
+function calculateLegendStartX(
+  chartCenterX: number,
+  pieRadius: number
+): number {
   return chartCenterX + pieRadius + DONUT_GEOMETRY.MARGIN_RIGHT;
 }
 
-export function generatePieChart(normalizedLanguages, selectedTheme, width, stroke) {
+export function generatePieChart(
+  normalizedLanguages: Language[],
+  selectedTheme: Theme,
+  width: number,
+  stroke: boolean
+): ChartResult {
   const isShifted = normalizedLanguages.length > LEGEND_SHIFT_THRESHOLD;
   const chartX = calculatePieCenter(width, isShifted);
   const legendStartX = calculateLegendStartX(chartX, DONUT_GEOMETRY.OUTER_RADIUS);
@@ -30,7 +39,7 @@ export function generatePieChart(normalizedLanguages, selectedTheme, width, stro
     normalizedLanguages,
     chartX,
     pieGeometry,
-    selectedTheme.colours,
+    [...selectedTheme.colours],
     useStroke
   );
 

@@ -65,4 +65,4 @@ export const THEMES = {
       "#b9f6ca"
     ]
   }
-};
+} as const;

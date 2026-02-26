@@ -13,6 +13,12 @@ const languages = {
   HTML: 2000
 };
 
+const mockFetch = () => vi.mocked(global.fetch);
+const mockResponse = (data: unknown) => 
+  ({ ok: true, json: async () => data }) as unknown as Response;
+const mockErrorResponse = (status: number, statusText = "") =>
+  ({ ok: false, status, statusText }) as unknown as Response;
+
 describe("fetchLanguageData", () => {
   beforeEach(() => {
     vi.stubEnv("GITHUB_USERNAMES", "testuser");
@@ -42,24 +48,20 @@ describe("fetchLanguageData", () => {
     vi.unstubAllEnvs();
     vi.stubEnv("GITHUB_USERNAMES", "testuser");
 
-    global.fetch
-      .mockResolvedValueOnce({ ok: true, json: async () => repos })
-      .mockResolvedValueOnce({ ok: true, json: async () => languages })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({}) });
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(repos))
+      .mockResolvedValueOnce(mockResponse(languages))
+      .mockResolvedValueOnce(mockResponse({}));
 
     const result = await fetchLanguageData();
     expect(global.fetch).toHaveBeenCalledTimes(3);
-    expect(result).toEqual({
-      JavaScript: 5000,
-      Python: 3000,
-      HTML: 2000
-    });
+    expect(result).toEqual({ JavaScript: 5000, Python: 3000, HTML: 2000 });
   });
 
   it("fetches repos and filters forks and ignored", async () => {
-    global.fetch
-      .mockResolvedValueOnce({ ok: true, json: async () => repos })
-      .mockResolvedValueOnce({ ok: true, json: async () => languages });
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(repos))
+      .mockResolvedValueOnce(mockResponse(languages));
 
     await fetchLanguageData();
 
@@ -84,29 +86,26 @@ describe("fetchLanguageData", () => {
       { name: "repo2", fork: false, full_name: "user/repo2" }
     ];
 
-    global.fetch
-      .mockResolvedValueOnce({ ok: true, json: async () => repos })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ JavaScript: 1000 }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ JavaScript: 500, Python: 300 }) });
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(repos))
+      .mockResolvedValueOnce(mockResponse({ JavaScript: 1000 }))
+      .mockResolvedValueOnce(mockResponse({ JavaScript: 500, Python: 300 }));
 
     const result = await fetchLanguageData();
     expect(result).toEqual({ JavaScript: 1500, Python: 300 });
   });
 
   it("throws on repos API error", async () => {
-    global.fetch.mockResolvedValueOnce({ 
-      ok: false, 
-      status: 404, 
-      statusText: "Not Found" 
-    });
+    mockFetch()
+      .mockResolvedValueOnce(mockErrorResponse(404, "Not Found"));
 
     await expect(fetchLanguageData()).rejects.toThrow("GitHub API error: 404 Not Found");
   });
 
   it("caches results within refresh interval", async () => {
-    global.fetch
-      .mockResolvedValueOnce({ ok: true, json: async () => [repos[0]] })
-      .mockResolvedValueOnce({ ok: true, json: async () => languages });
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
 
     const result1 = await fetchLanguageData();
     const result2 = await fetchLanguageData();
@@ -120,10 +119,10 @@ describe("fetchLanguageData", () => {
       { name: "repo2", fork: false, full_name: "user/repo2" }
     ];
 
-    global.fetch
-      .mockResolvedValueOnce({ ok: true, json: async () => repos })
-      .mockResolvedValueOnce({ ok: false, status: 403 }) // Failed language fetch
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ Python: 500 }) });
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(repos))
+      .mockResolvedValueOnce(mockErrorResponse(403)) // Failed language fetch
+      .mockResolvedValueOnce(mockResponse({ Python: 500 }));
 
     const result = await fetchLanguageData();
     expect(result).toEqual({ Python: 500 });
@@ -137,9 +136,9 @@ describe("fetchLanguageData", () => {
       { name: "org-repo", fork: false, full_name: "test-org/org-repo" }
     ];
 
-    global.fetch
-      .mockResolvedValueOnce({ ok: true, json: async () => orgRepos })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ TypeScript: 4000 }) })
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(orgRepos))
+      .mockResolvedValueOnce(mockResponse({ TypeScript: 4000 }));
 
     const result = await fetchLanguageData();
 
@@ -164,9 +163,7 @@ describe("processLanguageData", () => {
     const data = { HTML: 1000, JavaScript: 5000, Python: 3000 };
     const result = processLanguageData(data, 3);
 
-    expect(result[0].lang).toBe("JavaScript");
-    expect(result[1].lang).toBe("Python");
-    expect(result[2].lang).toBe("HTML");
+    expect(result.map(l => l.lang)).toEqual(["JavaScript", "Python", "HTML"]);
   });
 
   it("limits to count", () => {

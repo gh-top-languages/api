@@ -58,13 +58,13 @@ describe("parseQueryParams", () => {
 
     expect(params.selectedTheme.text).toBe("#111111");
     expect(params.selectedTheme.bg).toBe("#ffffff");
-    expect(params.selectedTheme.colours).toEqual(THEMES[themeKey].colours);
+    expect(params.selectedTheme.colours).toEqual(THEMES[themeKey as keyof typeof THEMES]!.colours);
   });
 
   it("if bg matches a theme name, use that theme's bg", () => {
-    const bgThemeKey = Object.keys(THEMES)[0];
+    const bgThemeKey = Object.keys(THEMES)[0]!;
     const params = parseQueryParams({ bg: bgThemeKey });
-    expect(params.selectedTheme.bg).toBe(THEMES[bgThemeKey].bg);
+    expect(params.selectedTheme.bg).toBe(THEMES[bgThemeKey as keyof typeof THEMES]!.bg);
   });
 
   it("overrides colours via c1..cMAX_COUNT", () => {
