@@ -6,7 +6,7 @@ export function renderSvg(
   background: string,
   segments: string,
   legend: string,
-  title: string,
+  title: string | null,
   textColour: string
 ): string {
   const titleElement = title ? `

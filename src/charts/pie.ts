@@ -39,7 +39,7 @@ export function generatePieChart(
     normalizedLanguages,
     chartX,
     pieGeometry,
-    selectedTheme.colours,
+    [...selectedTheme.colours],
     useStroke
   );
 

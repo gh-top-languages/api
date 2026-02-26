@@ -38,7 +38,7 @@ export function generateDonutChart(
     normalizedLanguages,
     chartX,
     DONUT_GEOMETRY,
-    selectedTheme.colours,
+    [...selectedTheme.colours],
     useStroke
   );
 

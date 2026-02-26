@@ -6,7 +6,7 @@ export function renderError(
   message: string,
   width: number,
   height: number,
-  selectedTheme: Theme
+  selectedTheme?: Theme
 ): string {
   const background = selectedTheme?.bg || THEMES.default.bg; 
   return `

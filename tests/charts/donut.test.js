@@ -58,7 +58,7 @@ describe("generateDonutChart", () => {
     generateDonutChart(langs, theme, 800);
     const segmentsCall = createDonutSegments.mock.calls[createDonutSegments.mock.calls.length - 1];
     const legendCall = createLegend.mock.calls[createLegend.mock.calls.length - 1];
-    expect(segmentsCall[3]).toBe(theme.colours);
+    expect(segmentsCall[3]).toEqual(theme.colours);
     expect(legendCall[2]).toBe(theme);
   });
 });

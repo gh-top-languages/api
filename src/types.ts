@@ -22,7 +22,7 @@ export type ChartResult = {
 };
 
 export type Theme = {
-  colours: string[];
-  text: string;
-  bg: string;
+  readonly colours: readonly string[];
+  readonly text: string;
+  readonly bg: string;
 };
