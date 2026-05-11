@@ -13,10 +13,18 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "typescript": "^5.0.0",
     "@types/node": "^25.3.1",
-    "@vercel/node": "^5.6.7",
+    "@vercel/node": "^5.7.17",
     "@vitest/coverage-v8": "^4.0.17",
+    "typescript": "^5.0.0",
     "vitest": "^4.0.17"
+  },
+  "overrides": {
+    "minimatch": "10.2.5",
+    "smol-toml": "1.6.1",
+    "ajv": "8.18.0",
+    "path-to-regexp": "6.3.0",
+    "undici": "6.24.0"
   }
 }
+
