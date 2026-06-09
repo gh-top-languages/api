@@ -15,9 +15,11 @@ const languages = {
 
 const mockFetch = () => vi.mocked(global.fetch);
 
-const mockResponse = (data: unknown) => (
-  { ok: true, json: async () => data }
-) as unknown as Response;
+const mockResponse = (data: unknown, link: string | null = null) => ({
+  ok:      true,
+  json:    async () => data,
+  headers: { get: (h: string) => h === "Link" ? link : null }
+}) as unknown as Response;
 
 const mockErrorResponse = (status: number, statusText = "") => (
   { ok: false, status, statusText }
