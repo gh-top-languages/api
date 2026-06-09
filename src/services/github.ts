@@ -18,12 +18,12 @@ type Repo = {
   full_name: string;
 };
 
-async function fetchAllRepos(url: string): Promise<Repo[]> {
-  const repos: Repo[] = [];
+async function fetchAllRepos(url: string, options: RequestInit): Promise<Repo[]> {
   let nextUrl: string | null = url;
+  const repos: Repo[]        = [];
 
   while (nextUrl) {
-    const response = await fetch(nextUrl);
+    const response = await fetch(nextUrl, options);
     if (!response.ok) throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
     repos.push(...await response.json() as Repo[]);
     nextUrl = parseNextLink(response.headers.get("Link"));
@@ -49,9 +49,12 @@ export async function fetchLanguageData(useTestData = false): Promise<LanguageBy
     "At least one of GITHUB_USERNAMES or GITHUB_ORGS must be set"
   );
 
+  const token: string | undefined = process.env["GITHUB_TOKEN"];
+  const options: RequestInit      = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+
   const repoArrays = await Promise.all([
-    ...usernames.map(user => fetchAllRepos(`https://api.github.com/users/${user}/repos?per_page=100`)),
-    ...orgs.map(     org  => fetchAllRepos(`https://api.github.com/orgs/${org}/repos?per_page=100`  ))
+    ...usernames.map(user => fetchAllRepos(`https://api.github.com/users/${user}/repos?per_page=100`, options)),
+    ...orgs.map(     org  => fetchAllRepos(`https://api.github.com/orgs/${org}/repos?per_page=100`,   options))
   ]);
   const repos = repoArrays.flat();
 
@@ -59,7 +62,7 @@ export async function fetchLanguageData(useTestData = false): Promise<LanguageBy
   const filteredRepos = repos.filter(repo => !repo.fork && !ignored.includes(repo.name));
 
   const languageFetches = filteredRepos.map(
-    repo => fetch(`https://api.github.com/repos/${repo.full_name}/languages`).then(r => r.ok ? r.json() : {})
+    repo => fetch(`https://api.github.com/repos/${repo.full_name}/languages`, options).then(r => r.ok ? r.json() : {})
   );
 
   const langResults: LanguageBytes[] = await Promise.all(languageFetches);
