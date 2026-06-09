@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach    } from "vitest";
-import { fetchLanguageData, processLanguageData, resetCache } from "../../src/api/github.js";
+import { fetchLanguageData, processLanguageData, resetCache } from "../../src/services/github.js";
 
 const repos = [
   { name: "repo1",        fork: false, full_name: "user/repo1"        },

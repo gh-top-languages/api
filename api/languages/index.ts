@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse     } from "@vercel/node";
 import { parseQueryParams, type QueryParams     } from "../../src/utils/params.js";
-import { fetchLanguageData, processLanguageData } from "../../src/api/github.js";
+import { fetchLanguageData, processLanguageData } from "../../src/services/github.js";
 import { generateChartData                      } from "../../src/render/chart.js";
 import { renderSvg                              } from "../../src/render/svg.js";
 import { renderError                            } from "../../src/render/error.js";
