@@ -14,14 +14,16 @@ const parseIntSafe = (
   return Number.isNaN(parsed) ? fallback : parsed;
 }
 
+const normalizeHex = (val: string) => `#${val.replace(/^#/, '')}`;
+
 export function parseQueryParams(query: QueryParams) {
   const baseTheme = THEMES[query["theme"] as keyof typeof THEMES] ?? THEMES.default;
   const count     = parseIntSafe(query["count"], DEFAULT_CONFIG.COUNT);
 
-  const customColours = [...baseTheme.colours] as string[];
+  const customColours: string[] = [...baseTheme.colours];
   for (let i = 1; i <= MAX_COUNT; i++) {
     const colourVal = query[`c${i}`];
-    if(colourVal) customColours[i - 1] = `#${colourVal.replace(/^#/, '')}` as string;
+    if(colourVal) customColours[i - 1] = normalizeHex(colourVal);
   }
 
   const typeParam = query["type"] as ChartType | undefined;
@@ -34,8 +36,8 @@ export function parseQueryParams(query: QueryParams) {
     height:      parseIntSafe(query["height"], DEFAULT_CONFIG.HEIGHT),
     count:       Math.min(Math.max(count, 1), MAX_COUNT),
     selectedTheme: {
-      bg:        THEMES[query["bg"] as keyof typeof THEMES]?.bg ?? query["bg"] ?? baseTheme.bg,
-      text:      query["text"] ?? baseTheme.text,
+      bg:        THEMES[query["bg"] as keyof typeof THEMES]?.bg ?? (query["bg"] ? normalizeHex(query["bg"]) : baseTheme.bg),
+      text:      query["text"] ? normalizeHex(query["text"]) : baseTheme.text,
       colours:   customColours
     },
     stroke:      query["stroke"] === "true",
