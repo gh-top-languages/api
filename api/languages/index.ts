@@ -25,8 +25,11 @@ export default async function handler(
     res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=3600, stale-while-revalidate=60");
     res.status(200).send(svg);
   } catch (error) {
+    console.error("[api/languages]", error);
     const errorSvg = renderError((error as Error).message, width, height, selectedTheme);
     res.setHeader("Content-Type", "image/svg+xml");
-    res.status(500).send(errorSvg);
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("X-Chart-Error", "true");
+    res.status(200).send(errorSvg); // Return 200 so error SVGs render in GitHub README <img> embeds (camo proxy drops non-200 bodies)
   }
 }
