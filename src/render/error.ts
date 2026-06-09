@@ -9,7 +9,7 @@ export function renderError(
   height:         number,
   selectedTheme?: Theme
 ): string {
-  const background = selectedTheme?.bg || THEMES.default.bg; 
+  const background = selectedTheme?.bg || THEMES.default.bg;
   return `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <rect width="${width}" height="${height}" fill="${background}" rx="10"/>
@@ -17,5 +17,5 @@ export function renderError(
         Error: ${sanitize(message)}
       </text>
     </svg>
-  `;
+  `.trim();
 }

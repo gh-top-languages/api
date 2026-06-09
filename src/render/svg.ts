@@ -27,5 +27,5 @@ export function renderSvg(
       ${segments}
       ${legend}
     </svg>
-  `;
+  `.trim();
 }
