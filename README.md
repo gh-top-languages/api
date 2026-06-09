@@ -57,28 +57,26 @@ Generate a top languages chart for your GitHub profile that you can embed in a R
 ### Customization Options
 Append these query parameters to the URL to customize the look and data of your chart:
 
-| Parameter | Type | Description | Default | Example |
-| :--- | :--- | :--- | :--- | :--- |
-| `theme` | String | Sets the colour scheme. Available options: `default`, `light`, `dark`. | `default` | `?theme=dark` |
-| `title` | String | Sets a custom title for the chart. | `Top Languages` | `?title=My%20Code%20Stack` | 
-| `hide_title` | Boolean | Hides the chart title completely. | `false` | `?hide_title=true` |
-| `count` | Number | Sets the maximum number of languages to display. Max is **16**. | `8` | `?count=10` |
-| `width` | Number | Sets the width of the SVG in pixels. | `400` | `?width=500` |
-| `height` | Number | Sets the height of the SVG in pixels. | `300` | `?height=350` |
-| `bg` | String | Sets the chart background colour. Accepts hex (`ffffff`) or theme names (`dark`, `light`). | `default` | `?bg=dark` |
-| `text` | String | Sets the chart text colour. Accepts hex (`ffffff`). | `#000000` | `?text=ffffff` |
-| `c1`-`c16` | String | Sets individual colours for languages 1-16. Accepts hex codes. | Auto-assigned | `?c1=ff0000&c2=00ff00` |
-| `test` | Boolean | Uses samples data instead of fetching from GitHub API. | `false` | `?test=true` |
-| `stroke` | Boolean | Adds an outline stroke to chart segments. | `false` | `?stroke=true` |
+| Parameter    | Type    | Description | Default | Example |
+| :---         | :---    | :--- | :--- | :--- |
+| `theme`      | String  | Sets the colour scheme. Available options: `default`, `light`, `dark`. | `default`  | `?theme=dark` |
+| `type`       | String  | Sets the chart type. Available options: `donut`, `pie`.                | `donut`    | `?type=pie`   |
+| `title`      | String  | Sets a custom title for the chart.                   | `Top Languages` | `?title=My%20Code%20Stack` |
+| `hide_title` | Boolean | Hides the chart title completely.                    | `false`         | `?hide_title=true`         |
+| `text`       | String  | Sets the chart text colour. Accepts hex (`ffffff`).  | `#000000`       | `?text=ffffff`             |
+| `bg`         | String  | Sets the chart background colour. Accepts hex (`ffffff`) or theme names (`dark`). | `default` | `?bg=dark` |
+| `c1`-`c16`   | String  | Sets individual colours for languages 1-16. Accepts hex codes.  | Auto-assigned | `?c1=ff0000&c2=00ff00` |
+| `count`      | Number  | Sets the maximum number of languages to display. Max is **16**. | `8`           | `?count=10`            |
+| `width`      | Number  | Sets the width of the SVG in pixels.                            | `400`         | `?width=500`           |
+| `height`     | Number  | Sets the height of the SVG in pixels.                           | `300`         | `?height=350`          |
+| `stroke`     | Boolean | Adds an outline stroke to chart segments.                       | `false`       | `?stroke=true`         |
+| `test`       | Boolean | Uses samples data instead of fetching from GitHub API.          | `false`       | `?test=true`           |
 
 #### Example URL
 To get 10 languages, a dark theme, and a custom title:
 ```markdown
 ![My Custom Chart](https://your-deployment-url.vercel.app/api/languages?count=10&theme=dark&title=My%20Top%2010%20Languages)
 ```
-
-<br/>
-
 
 ## Deployment & Configuration
 
@@ -96,8 +94,9 @@ npm install
 
 ### Configuration
 Copy `.env.example` to `.env`, and update the variables.
-- `GITHUB_USERNAME`: User to fetch repositories and statistics.
-- `IGNORED_REPOS`: Optional repos you don't want counted in your chart.
+- `GITHUB_USERNAMES`: Comma-separated GitHub usernames to fetch repositories from.
+- `GITHUB_ORGS`: Optional comma-separated GitHub organization names to include.
+- `IGNORED_REPOS`: Optional comma-separated repo names to exclude from the chart.
 
 ### Running Locally
 ```bash
@@ -106,12 +105,10 @@ vercel dev
 ```
 
 ### Deployment
-- **Vercel**: Simply import your repo and deploy. The default endpoint is /api/languages
 
-<br/>
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/masonlet/github-top-languages&env=GITHUB_USERNAMES,IGNORED_REPOS&envDescription[GITHUB_USERNAMES]=Comma-separated%20GitHub%20usernames&envDescription[IGNORED_REPOS]=Optional%20comma-separated%20repos%20to%20exclude)
 
-
-
+> The default endpoint is /api/languages
 
 ## License
 MIT License - see [LICENSE](./LICENSE) for details.
