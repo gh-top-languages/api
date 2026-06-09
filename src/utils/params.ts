@@ -41,6 +41,7 @@ export function parseQueryParams(query: QueryParams) {
       colours:   customColours
     },
     stroke:      query["stroke"] === "true",
-    useTestData: query["test"] === "true"
+    useTestData: query["test"] === "true",
+    errorTest:   sanitize(query["error"] ?? '')
   }
 }

@@ -33,15 +33,18 @@ describe("handler", () => {
       send: vi.fn()
     } as unknown as VercelResponse;
 
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
     vi.mocked(parseQueryParams).mockReturnValue({
-      chartType: "donut",
-      chartTitle: "Languages",
-      width: 600,
-      height: 400,
-      count: 5,
+      chartType:     "donut",
+      chartTitle:    "Languages",
+      width:         600,
+      height:        400,
+      count:         5,
       selectedTheme: mockTheme,
-      stroke: false,
-      useTestData: false
+      stroke:        false,
+      useTestData:   false,
+      errorTest:     ''
     });
   });
 
@@ -104,6 +107,22 @@ describe("handler", () => {
     expect(renderError).toHaveBeenCalledWith("No language data available", 600, 400, mockTheme);
     expect(res.setHeader).toHaveBeenCalledWith("Cache-Control", "no-store");
     expect(res.setHeader).toHaveBeenCalledWith("X-Chart-Error", "true");
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("throws error when errorTest param is set", async () => {
+    vi.mocked(parseQueryParams).mockReturnValue({
+      chartType: "donut", chartTitle: "Languages",
+      width: 600, height: 400, count: 5,
+      selectedTheme: mockTheme, stroke: false,
+      useTestData: false, errorTest: "test error"
+    });
+    const errorSvg = "<svg>error</svg>";
+    vi.mocked(renderError).mockReturnValue(errorSvg);
+
+    await handler(req, res);
+
+    expect(renderError).toHaveBeenCalledWith("test error", 600, 400, mockTheme);
     expect(res.status).toHaveBeenCalledWith(200);
   });
 });

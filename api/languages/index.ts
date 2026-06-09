@@ -13,10 +13,12 @@ export default async function handler(
     chartType, chartTitle,
     width, height, count,
     selectedTheme, stroke,
-    useTestData
+    useTestData, errorTest
   } = parseQueryParams(req.query as QueryParams);
 
   try {
+    if (errorTest) throw new Error(errorTest);
+
     const rawData              = await fetchLanguageData(useTestData);
     const normalizedData       = processLanguageData(rawData, count);
     const { segments, legend } = generateChartData(normalizedData, selectedTheme, chartType, width, stroke);
