@@ -1,5 +1,4 @@
-import { LEGEND_SHIFT_THRESHOLD, LEGEND_STYLES } from "../constants/styles.js";
-import { CHART_MARGIN_RIGHT                    } from "../constants/styles.js";
+import { LEGEND_SHIFT_THRESHOLD, LEGEND_STYLES, CHART_MARGIN_RIGHT } from "../constants/styles.js";
 
 export function resolveLayout(count: number, stroke: boolean) {
   return {
