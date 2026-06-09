@@ -72,17 +72,17 @@ describe("fetchLanguageData", () => {
     await fetchLanguageData();
 
     expect(global.fetch).toHaveBeenCalledWith(
-      "https://api.github.com/users/testuser/repos?per_page=100"
+      "https://api.github.com/users/testuser/repos?per_page=100", {}
     );
     expect(global.fetch).toHaveBeenCalledWith(
-      "https://api.github.com/repos/user/repo1/languages"
+      "https://api.github.com/repos/user/repo1/languages", {}
     );
 
     expect(global.fetch).not.toHaveBeenCalledWith(
-      "https://api.github.com/repos/user/repo2/languages"
+      "https://api.github.com/repos/user/repo2/languages", {}
     );
     expect(global.fetch).not.toHaveBeenCalledWith(
-      "https://api.github.com/repos/user/ignored-repo/languages"
+      "https://api.github.com/repos/user/ignored-repo/languages", {}
     );
   });
 
@@ -149,7 +149,7 @@ describe("fetchLanguageData", () => {
     const result = await fetchLanguageData();
 
     expect(global.fetch).toHaveBeenCalledWith(
-      "https://api.github.com/orgs/test-org/repos?per_page=100"
+      "https://api.github.com/orgs/test-org/repos?per_page=100", {}
     );
     expect(result).toEqual({ TypeScript: 4000 });
   });
@@ -169,7 +169,7 @@ describe("fetchLanguageData", () => {
       .mockResolvedValueOnce(mockResponse({ Python:     500  }));
 
     const result = await fetchLanguageData();
-    expect(global.fetch).toHaveBeenCalledWith(page2Url);
+    expect(global.fetch).toHaveBeenCalledWith(page2Url, {});
     expect(global.fetch).toHaveBeenCalledTimes(4);
     expect(result).toEqual({ JavaScript: 1000, Python: 500 });
   });
@@ -185,6 +185,21 @@ describe("fetchLanguageData", () => {
     const result = await fetchLanguageData();
     expect(global.fetch).toHaveBeenCalledTimes(2);
     expect(result).toEqual({ Go: 300 });
+  });
+
+  it("sends Authorization header when GITHUB_TOKEN is set", async () => {
+    vi.stubEnv("GITHUB_TOKEN", "test-token");
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/users/testuser/repos?per_page=100",
+      { headers: { Authorization: "Bearer test-token" } }
+    );
   });
 });
 

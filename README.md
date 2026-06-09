@@ -98,6 +98,7 @@ Copy `.env.example` to `.env`, and update the variables.
 - `GITHUB_USERNAMES`: Comma-separated GitHub usernames to fetch repositories from.
 - `GITHUB_ORGS`: Optional comma-separated GitHub organization names to include.
 - `IGNORED_REPOS`: Optional comma-separated repo names to exclude from the chart.
+- `GITHUB_TOKEN`: Optional GitHub personal access token. Raises the API rate limit from 60 to 5000 requests/hour.
 
 ### Running Locally
 ```bash
@@ -107,7 +108,7 @@ vercel dev
 
 ### Deployment
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/masonlet/github-top-languages&env=GITHUB_USERNAMES,IGNORED_REPOS&envDescription[GITHUB_USERNAMES]=Comma-separated%20GitHub%20usernames&envDescription[IGNORED_REPOS]=Optional%20comma-separated%20repos%20to%20exclude)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/masonlet/github-top-languages&env=GITHUB_USERNAMES,GITHUB_TOKEN,IGNORED_REPOS&envDescription[GITHUB_USERNAMES]=Comma-separated%20GitHub%20usernames&envDescription[IGNORED_REPOS]=Optional%20comma-separated%20repos%20to%20exclude&envDescription[GITHUB_TOKEN]=Optional%20GitHub%20personal%20access%20token%20for%20higher%20rate%20limits)
 
 > The default endpoint is /api/languages
 
