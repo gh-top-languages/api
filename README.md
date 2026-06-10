@@ -1,9 +1,10 @@
-# Github Top Languages
+# Github Top Languages API
 
-Generate a top languages chart for your GitHub profile that you can embed in a README or website.
+Deployable **GitHub language chart generator** — embeddable SVGs for READMEs and websites.
 
-[![Tests](https://github.com/masonlet/github-top-languages/actions/workflows/tests.yml/badge.svg)](https://github.com/masonlet/github-top-languages/actions/workflows/tests.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Tests](https://github.com/masonlet/github-top-languages-api/actions/workflows/tests.yml/badge.svg)](https://github.com/masonlet/github-top-languages-api/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
+![Node](https://img.shields.io/badge/Node.js-20+-green)
 
 ![Example 8 Top Languages Chart](images/default8.png)
 
@@ -26,7 +27,12 @@ Generate a top languages chart for your GitHub profile that you can embed in a R
 ## Table of Contents
 - [Features](#features)
 - [Usage](#usage)
+- [Parameters](#customization-options)
 - [Deployment & Configuration](#deployment--configuration)
+  - [Prerequisites](#prerequisites)
+  - [Configure `.env`](#configuration)
+  - [Local Development](#running-locally)
+  - [Deploying](#deployment)
 - [License](#license)
 
 ## Features
@@ -88,8 +94,8 @@ To get 10 languages, a dark theme, and a custom title:
 
 ### Installation
 ```bash
-git clone https://github.com/masonlet/github-top-languages.git
-cd github-top-languages
+git clone https://github.com/masonlet/github-top-languages-api.git
+cd github-top-languages-api
 npm install
 ```
 
@@ -108,7 +114,7 @@ vercel dev
 
 ### Deployment
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/masonlet/github-top-languages&env=GITHUB_USERNAMES,GITHUB_TOKEN,IGNORED_REPOS&envDescription[GITHUB_USERNAMES]=Comma-separated%20GitHub%20usernames&envDescription[IGNORED_REPOS]=Optional%20comma-separated%20repos%20to%20exclude&envDescription[GITHUB_TOKEN]=Optional%20GitHub%20personal%20access%20token%20for%20higher%20rate%20limits)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/masonlet/github-top-languages-api&env=GITHUB_USERNAMES,GITHUB_TOKEN,IGNORED_REPOS&envDescription[GITHUB_USERNAMES]=Comma-separated%20GitHub%20usernames&envDescription[IGNORED_REPOS]=Optional%20comma-separated%20repos%20to%20exclude&envDescription[GITHUB_TOKEN]=Optional%20GitHub%20personal%20access%20token%20for%20higher%20rate%20limits)
 
 > The default endpoint is /api/languages
 

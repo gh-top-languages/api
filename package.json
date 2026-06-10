@@ -1,17 +1,23 @@
 {
-  "name": "github-top-languages",
-  "version": "0.0.1",
+  "name": "github-top-languages-api",
   "description": "Github Top Languages card generator",
   "main": "index.js",
+  "author": "Mason L'Etoile",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/masonlet/github-top-languages-api"
+  },
+  "keywords": ["typescript", "github-profile", "github-readme", "top-languages", "svg"],
+  "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
     "typecheck": "tsc --noEmit"
   },
-  "author": "Mason L'Etoile",
-  "license": "MIT",
-  "type": "module",
+  "dependencies": { "github-top-languages-lib": "^1.0.1" },
   "devDependencies": {
     "typescript": "^5.0.0",
     "@vercel/node": "^5.7.17",
@@ -19,7 +25,6 @@
     "vitest": "^4.0.17",
     "@vitest/coverage-v8": "^4.0.17"
   },
-  "dependencies": { "github-top-languages-lib": "^1.0.1" },
   "overrides": {
     "minimatch": "10.2.5",
     "smol-toml": "1.6.1",
