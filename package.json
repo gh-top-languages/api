@@ -17,7 +17,7 @@
     "test:coverage": "vitest --coverage",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": { "github-top-languages-lib": "^1.0.1" },
+  "dependencies": { "github-top-languages-lib": "^1.0.2" },
   "devDependencies": {
     "typescript": "^5.0.0",
     "@vercel/node": "^5.7.17",
