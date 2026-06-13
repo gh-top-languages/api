@@ -71,29 +71,26 @@ export async function fetchLanguageData(useTestData = false): Promise<LanguageBy
     "At least one of GITHUB_USERNAMES or GITHUB_ORGS must be set"
   );
 
-  const repoArrays = await Promise.all([
-    ...usernames.map(
-      u => fetchAllRepos(`https://api.github.com/users/${u.name}/repos?per_page=100`, u.token)
+  const repoGroups = await Promise.all([
+    ...usernames.map(u =>
+      fetchAllRepos(`https://api.github.com/users/${u.name}/repos?per_page=100`, u.token)
+        .then(repos => ({ token: u.token, repos }))
     ),
-    ...orgs.map(
-      o => fetchAllRepos(`https://api.github.com/orgs/${o.name}/repos?per_page=100`,  o.token)
+    ...orgs.map(o =>
+      fetchAllRepos(`https://api.github.com/orgs/${o.name}/repos?per_page=100`, o.token)
+        .then(repos => ({ token: o.token, repos }))
     )
   ]);
-  const repos = repoArrays.flat();
 
-  const ignored       = process.env["IGNORED_REPOS"]?.split(',').map(name => name.trim()) || [];
-  const filteredRepos = repos.filter(repo => !repo.fork && !ignored.includes(repo.name));
+  const ignored = process.env["IGNORED_REPOS"]?.split(',').map(name => name.trim()) || [];
 
-  const tokenMap = new Map<string, string>();
-  [...usernames, ...orgs].forEach(s => { if (s.token) tokenMap.set(s.name, s.token); });
-
-  const languageFetches = filteredRepos.map(repo => {
-    const owner = repo.full_name.split('/')[0] ?? '';
-    return fetch(
-      `https://api.github.com/repos/${repo.full_name}/languages`, makeOptions(tokenMap.get(owner))
-    ).then(r => r.ok ? (r.json() as Promise<LanguageBytes>) : ({} as LanguageBytes))
-     .catch(() => ({} as LanguageBytes));
-  });
+  const languageFetches = repoGroups.flatMap(({ token, repos }) =>
+    repos.filter(repo => !repo.fork && !ignored.includes(repo.name)).map(repo =>
+      fetch(`https://api.github.com/repos/${repo.full_name}/languages`, makeOptions(token))
+        .then(r => r.ok ? (r.json() as Promise<LanguageBytes>) : ({} as LanguageBytes))
+        .catch(() => ({} as LanguageBytes))
+    )
+  );
 
   const langResults: LanguageBytes[] = await Promise.all(languageFetches);
 
