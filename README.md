@@ -115,7 +115,7 @@ vercel dev
 
 > The default endpoint is /api/languages
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/masonlet/github-top-languages-api&env=GITHUB_USERNAMES,GITHUB_ORGS,IGNORED_REPOS&envDescription[GITHUB_USERNAMES]=JSON%20array%20or%20plain%20string%20of%20GitHub%20usernames.%20Add%20a%20token%20per%20entry%20for%20private%20repos%3A%20%5B%22user%22%2C%20%7B%22name%22%3A%20%22other%22%2C%20%22token%22%3A%20%22github_pat_%22%7D%5D&envDescription[GITHUB_ORGS]=JSON%20array%20or%20plain%20string%20of%20GitHub%20org%20names.%20Add%20a%20token%20per%20entry%20for%20private%20org%20repos&envDescription[IGNORED_REPOS]=Optional%20comma-separated%20repo%20names%20to%20exclude)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/masonlet/github-top-languages-api&env=GITHUB_USERNAMES,GITHUB_ORGS,IGNORED_REPOS&envDescription[GITHUB_USERNAMES]=GitHub%20usernames%20to%20fetch%20repos%20from.%20See%20README%20for%20format.&envDescription[GITHUB_ORGS]=GitHub%20org%20names%20to%20fetch%20repos%20from.%20See%20README%20for%20format.&envDescription[IGNORED_REPOS]=Optional%20comma-separated%20repo%20names%20to%20exclude)
 
 ## Error Responses
 
