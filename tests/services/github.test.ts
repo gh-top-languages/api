@@ -27,7 +27,7 @@ const mockErrorResponse = (status: number, statusText = "") => (
 
 describe("fetchLanguageData", () => {
   beforeEach(() => {
-    vi.stubEnv("GITHUB_USERNAMES", "testuser");
+    vi.stubEnv("GITHUB_USERNAMES", `["testuser"]`);
     vi.stubEnv("IGNORED_REPOS", "ignored-repo");
     global.fetch = vi.fn();
     vi.resetModules();
@@ -52,7 +52,7 @@ describe("fetchLanguageData", () => {
 
   it("handles missing IGNORED_REPOS env variable", async () => {
     vi.unstubAllEnvs();
-    vi.stubEnv("GITHUB_USERNAMES", "testuser");
+    vi.stubEnv("GITHUB_USERNAMES", `["testuser"]`);
 
     mockFetch()
       .mockResolvedValueOnce(mockResponse(repos))
@@ -136,7 +136,7 @@ describe("fetchLanguageData", () => {
 
   it("fetches from organizations", async () => {
     vi.unstubAllEnvs();
-    vi.stubEnv("GITHUB_ORGS", "test-org");
+    vi.stubEnv("GITHUB_ORGS", `["test-org"]`);
 
     const orgRepos = [
       { name: "org-repo", fork: false, full_name: "test-org/org-repo" }
@@ -187,8 +187,8 @@ describe("fetchLanguageData", () => {
     expect(result).toEqual({ Go: 300 });
   });
 
-  it("sends Authorization header when GITHUB_TOKEN is set", async () => {
-    vi.stubEnv("GITHUB_TOKEN", "test-token");
+  it("sends Authorization header when token is set per source", async () => {
+    vi.stubEnv("GITHUB_USERNAMES", '[{"name": "testuser", "token": "test-token"}]');
 
     mockFetch()
       .mockResolvedValueOnce(mockResponse([repos[0]]))
@@ -198,6 +198,10 @@ describe("fetchLanguageData", () => {
 
     expect(global.fetch).toHaveBeenCalledWith(
       "https://api.github.com/users/testuser/repos?per_page=100",
+      { headers: { Authorization: "Bearer test-token" } }
+    );
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/repos/user/repo1/languages",
       { headers: { Authorization: "Bearer test-token" } }
     );
   });
