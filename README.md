@@ -36,12 +36,12 @@ Deployable **GitHub language chart generator** — embeddable SVGs for READMEs a
 - [License](#license)
 
 ## Features
-- Generates a donut chart of your top programming languages (up to 16).
+- Generates a chart of your top programming languages (up to 16).
 - **Customizable:** Control the title, size, theme, and number of languages displayed.
     - **Theming**: Supports `default`, `light`, and `dark` themes.
     - **Custom Colours**: Set background (`bg`), text (`text`), and individual language colours (`c1`-`c16`) via query parameters. 
 - **Dynamic Layout:** The legend automatically shifts to a **two-column layout** when displaying 9 or more languages.
-- Automatically fetches all your public GitHub repositories.
+- Automatically fetches all public GitHub repositories, and private repositories with a token.
 - Ignores forks and optionally specific repositories (`IGNORED_REPOS`).
 - Uses **hourly caching** to reduce API calls and improve performance.
 
@@ -101,10 +101,9 @@ npm install
 
 ### Configuration
 Copy `.env.example` to `.env`, and update the variables.
-- `GITHUB_USERNAMES`: Comma-separated GitHub usernames to fetch repositories from.
-- `GITHUB_ORGS`: Optional comma-separated GitHub organization names to include.
+- `GITHUB_USERNAMES`: GitHub usernames to fetch repositories from. Accepts a plain string (`masonlet`), comma-separated (`masonlet,secondlet`), or a JSON array with optional per-user tokens (`["masonlet", {"name": "other", "token": "github_pat_..."}]`).
+- `GITHUB_ORGS`: GitHub organization names to fetch repositories from. Accepts a plain string (`gh-top-languages`), comma-separated(`gh-top-languages,starweb-libs`), or a JSON array with optional per-org tokens (`["gh-top-languages", {"name": "starweb-libs", "token": "github_pat_..."}]`)
 - `IGNORED_REPOS`: Optional comma-separated repo names to exclude from the chart.
-- `GITHUB_TOKEN`: Optional GitHub personal access token. Raises the API rate limit from 60 to 5000 requests/hour.
 
 ### Running Locally
 ```bash
@@ -114,9 +113,9 @@ vercel dev
 
 ### Deployment
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/masonlet/github-top-languages-api&env=GITHUB_USERNAMES,GITHUB_TOKEN,IGNORED_REPOS&envDescription[GITHUB_USERNAMES]=Comma-separated%20GitHub%20usernames&envDescription[IGNORED_REPOS]=Optional%20comma-separated%20repos%20to%20exclude&envDescription[GITHUB_TOKEN]=Optional%20GitHub%20personal%20access%20token%20for%20higher%20rate%20limits)
-
 > The default endpoint is /api/languages
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/masonlet/github-top-languages-api&env=GITHUB_USERNAMES,GITHUB_ORGS,IGNORED_REPOS&envDescription[GITHUB_USERNAMES]=JSON%20array%20or%20plain%20string%20of%20GitHub%20usernames.%20Add%20a%20token%20per%20entry%20for%20private%20repos%3A%20%5B%22user%22%2C%20%7B%22name%22%3A%20%22other%22%2C%20%22token%22%3A%20%22github_pat_%22%7D%5D&envDescription[GITHUB_ORGS]=JSON%20array%20or%20plain%20string%20of%20GitHub%20org%20names.%20Add%20a%20token%20per%20entry%20for%20private%20org%20repos&envDescription[IGNORED_REPOS]=Optional%20comma-separated%20repo%20names%20to%20exclude)
 
 ## Error Responses
 
