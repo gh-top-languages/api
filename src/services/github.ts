@@ -1,6 +1,12 @@
 import { REFRESH_INTERVAL } from "@gh-top-languages/lib/constants/config.js";
 import type { Language    } from "@gh-top-languages/lib/types.js";
 
+type Repo = {
+  name:      string;
+  fork:      boolean;
+  full_name: string;
+};
+
 type Source = { name: string; token?: string };
 
 type LanguageBytes = Record<string, number>;
@@ -46,12 +52,6 @@ function parseNextLink(linkHeader: string | null): string | null {
   return match?.[1] ?? null;
 }
 
-type Repo = {
-  name:      string;
-  fork:      boolean;
-  full_name: string;
-};
-
 async function fetchAllRepos(url: string, token?: string): Promise<Repo[]> {
   const options = makeOptions(token);
   let nextUrl: string | null = url;
@@ -90,16 +90,16 @@ export async function fetchLanguageData(useTestData = false): Promise<LanguageBy
     ...usernames.map(u =>
       fetchAllRepos(`https://api.github.com/users/${u.name}/repos?per_page=100`, u.token)
         .then(repos => ({ token: u.token, repos }))
-        .catch(err => {
-          console.error(`Skipping user "${u.name}":`, err.message);
+        .catch(() => {
+          console.error(`Skipping user "${u.name}": failed to fetch repositories.`);
           return { token: u.token, repos: [] as Repo[] };
         })
     ),
     ...orgs.map(o =>
       fetchAllRepos(`https://api.github.com/orgs/${o.name}/repos?per_page=100`, o.token)
         .then(repos => ({ token: o.token, repos }))
-        .catch(err => {
-          console.error(`Skipping org "${o.name}":`, err.message);
+        .catch(() => {
+          console.error(`Skipping org "${o.name}": failed to fetch repositories.`);
           return { token: o.token, repos: [] as Repo[] };
         })
     )
