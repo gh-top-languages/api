@@ -22,7 +22,7 @@ function parseSources(env: string | undefined): Source[] {
       }).filter((s): s is Source => !!s && !!s.name);
     }
   } catch (e) {
-    console.error("Failed to parse env variable:", e);
+    console.error("Failed to parse configuration string.");
   }
   if (env.trimStart().startsWith('[')) return [];
   return env.split(',').map(s => ({ name: s.trim().replace(/^["']|["']$/g, "") })).filter(s => s.name);
