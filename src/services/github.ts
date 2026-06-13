@@ -21,7 +21,7 @@ function parseSources(env: string | undefined): Source[] {
   } catch {
 
   }
-  return env.split(',').map(s => ({ name: s.trim() })).filter(s => s.name);
+  return env.split(',').map(s => ({ name: s.trim().replace(/^["']|["']$/g, "") })).filter(s => s.name);
 }
 
 function makeOptions(token?: string): RequestInit {
