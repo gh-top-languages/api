@@ -27,11 +27,12 @@ const mockErrorResponse = (status: number, statusText = "") => (
 
 describe("fetchLanguageData", () => {
   beforeEach(() => {
-    vi.stubEnv("GITHUB_USERNAMES", "testuser");
+    vi.stubEnv("GITHUB_USERNAMES", `["testuser"]`);
     vi.stubEnv("IGNORED_REPOS", "ignored-repo");
     global.fetch = vi.fn();
     vi.resetModules();
     resetCache();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -52,7 +53,7 @@ describe("fetchLanguageData", () => {
 
   it("handles missing IGNORED_REPOS env variable", async () => {
     vi.unstubAllEnvs();
-    vi.stubEnv("GITHUB_USERNAMES", "testuser");
+    vi.stubEnv("GITHUB_USERNAMES", `["testuser"]`);
 
     mockFetch()
       .mockResolvedValueOnce(mockResponse(repos))
@@ -101,11 +102,23 @@ describe("fetchLanguageData", () => {
     expect(result).toEqual({ JavaScript: 1500, Python: 300 });
   });
 
-  it("throws on repos API error", async () => {
+  it("handles repos API error gracefully", async () => {
     mockFetch()
       .mockResolvedValueOnce(mockErrorResponse(404, "Not Found"));
 
-    await expect(fetchLanguageData()).rejects.toThrow("GitHub API error: 404 Not Found");
+    const result = await fetchLanguageData();
+    expect(result).toEqual({});
+  });
+
+  it("handles org repos API error gracefully", async () => {
+    vi.unstubAllEnvs();
+    vi.stubEnv("GITHUB_ORGS", '["test-org"]');
+
+    mockFetch()
+      .mockResolvedValueOnce(mockErrorResponse(403, "Forbidden"));
+
+    const result = await fetchLanguageData();
+    expect(result).toEqual({});
   });
 
   it("caches results within refresh interval", async () => {
@@ -136,7 +149,7 @@ describe("fetchLanguageData", () => {
 
   it("fetches from organizations", async () => {
     vi.unstubAllEnvs();
-    vi.stubEnv("GITHUB_ORGS", "test-org");
+    vi.stubEnv("GITHUB_ORGS", `["test-org"]`);
 
     const orgRepos = [
       { name: "org-repo", fork: false, full_name: "test-org/org-repo" }
@@ -187,8 +200,8 @@ describe("fetchLanguageData", () => {
     expect(result).toEqual({ Go: 300 });
   });
 
-  it("sends Authorization header when GITHUB_TOKEN is set", async () => {
-    vi.stubEnv("GITHUB_TOKEN", "test-token");
+  it("sends Authorization header when token is set per source", async () => {
+    vi.stubEnv("GITHUB_USERNAMES", '[{"name": "testuser", "token": "test-token"}]');
 
     mockFetch()
       .mockResolvedValueOnce(mockResponse([repos[0]]))
@@ -200,6 +213,133 @@ describe("fetchLanguageData", () => {
       "https://api.github.com/users/testuser/repos?per_page=100",
       { headers: { Authorization: "Bearer test-token" } }
     );
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/repos/user/repo1/languages",
+      { headers: { Authorization: "Bearer test-token" } }
+    );
+  });
+
+  it("parses CSV fallback for GITHUB_USERNAMES", async () => {
+    vi.stubEnv("GITHUB_USERNAMES", "testuser");
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/users/testuser/repos?per_page=100", {}
+    );
+  });
+
+  it("returns empty sources for broken JSON array", async () => {
+    vi.unstubAllEnvs();
+    vi.stubEnv("GITHUB_USERNAMES", '["testuser"');
+
+    await expect(fetchLanguageData()).rejects.toThrow(
+      "GITHUB_USERNAMES/GITHUB_ORGS must be a valid JSON array. Check your configuration."
+    );
+  });
+
+  it("skips malformed entries in JSON array", async () => {
+    vi.stubEnv("GITHUB_USERNAMES", '[123, "testuser"]');
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/users/testuser/repos?per_page=100", {}
+    );
+  });
+
+  it("handles language fetch network failure gracefully", async () => {
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockRejectedValueOnce(new Error("Network error"));
+
+    const result = await fetchLanguageData();
+    expect(result).toEqual({});
+  });
+
+  it("sends Authorization header for org token", async () => {
+    vi.unstubAllEnvs();
+    vi.stubEnv("GITHUB_ORGS", '[{"name": "test-org", "token": "org-token"}]');
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([{ name: "org-repo", fork: false, full_name: "test-org/org-repo" }]))
+      .mockResolvedValueOnce(mockResponse({ TypeScript: 4000 }));
+
+    await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/orgs/test-org/repos?per_page=100",
+      { headers: { Authorization: "Bearer org-token" } }
+    );
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/repos/test-org/org-repo/languages",
+      { headers: { Authorization: "Bearer org-token" } }
+    );
+  });
+
+  it("trims whitespace from plain string entries in JSON array", async () => {
+    vi.stubEnv("GITHUB_USERNAMES", '[" testuser "]');
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/users/testuser/repos?per_page=100", {}
+    );
+  });
+
+  it("handles unexpected pagination URL gracefully", async () => {
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(
+        [{ name: "repo1", fork: false, full_name: "user/repo1" }],
+        `<https://evil.com/repos>; rel="next"`
+      ));
+
+    const result = await fetchLanguageData();
+    expect(result).toEqual({});
+  });
+
+  it("ignores whitespace-only tokens in JSON array", async () => {
+    vi.stubEnv("GITHUB_USERNAMES", '[{"name": "testuser", "token": "   "}]');
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/users/testuser/repos?per_page=100", {}
+    );
+  });
+
+  it("returns stale cache on total fetch failure", async () => {
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    await fetchLanguageData();
+
+    vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 1000 * 60 * 61);
+
+    mockFetch()
+      .mockResolvedValueOnce(mockErrorResponse(500, "Internal Server Error"));
+
+    const result = await fetchLanguageData();
+    expect(result).toEqual({ JavaScript: 5000, Python: 3000, HTML: 2000 });
+
+    vi.restoreAllMocks();
   });
 });
 
