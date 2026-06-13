@@ -323,6 +323,24 @@ describe("fetchLanguageData", () => {
       "https://api.github.com/users/testuser/repos?per_page=100", {}
     );
   });
+
+  it("returns stale cache on total fetch failure", async () => {
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    await fetchLanguageData();
+
+    vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 1000 * 60 * 61);
+
+    mockFetch()
+      .mockResolvedValueOnce(mockErrorResponse(500, "Internal Server Error"));
+
+    const result = await fetchLanguageData();
+    expect(result).toEqual({ JavaScript: 5000, Python: 3000, HTML: 2000 });
+
+    vi.restoreAllMocks();
+  });
 });
 
 describe("processLanguageData", () => {

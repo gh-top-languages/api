@@ -117,15 +117,21 @@ export async function fetchLanguageData(useTestData = false): Promise<LanguageBy
 
   const langResults: LanguageBytes[] = await Promise.all(languageFetches);
 
-  cachedLanguageData = langResults.reduce<LanguageBytes>((acc, languages) => {
+  const result = langResults.reduce<LanguageBytes>((acc, languages) => {
     for (const [lang, bytes] of Object.entries(languages)) {
       acc[lang] = (acc[lang] || 0) + bytes;
     }
     return acc;
   }, {});
 
+  if (Object.keys(result).length === 0 && cachedLanguageData !== null) {
+    lastRefresh = now - REFRESH_INTERVAL + (5 * 60 * 1000);
+    return cachedLanguageData;
+  }
+
+  cachedLanguageData = result;
   lastRefresh = now;
-  return cachedLanguageData;
+  return result;
 }
 
 export function processLanguageData(languageBytes: LanguageBytes, count: number): Language[] {
