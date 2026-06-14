@@ -94,8 +94,8 @@ To get 10 languages, a dark theme, and a custom title:
 
 ### Installation
 ```bash
-git clone https://github.com/masonlet/github-top-languages-api.git
-cd github-top-languages-api
+git clone https://github.com/gh-top-languages/api.git
+cd api
 npm install
 ```
 
