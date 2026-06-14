@@ -1,4 +1,4 @@
-# Github Top Languages API
+# GitHub Top Languages API
 
 Deployable **GitHub language chart generator** — embeddable SVGs for READMEs and websites.
 
