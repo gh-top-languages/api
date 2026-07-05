@@ -27,7 +27,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@gh-top-languages/lib": "^1.0.3"
+    "@gh-top-languages/lib": "^1.0.4"
   },
   "devDependencies": {
     "@types/node": "^25.3.1",
