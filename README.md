@@ -2,7 +2,7 @@
 
 Deployable **GitHub language chart generator** — embeddable SVGs for READMEs and websites.
 
-[![Tests](https://github.com/masonlet/github-top-languages-api/actions/workflows/tests.yml/badge.svg)](https://github.com/masonlet/github-top-languages-api/actions/workflows/tests.yml)
+[![Tests](https://github.com/gh-top-languages/api/actions/workflows/tests.yml/badge.svg)](https://github.com/gh-top-languages/api/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
 ![Node](https://img.shields.io/badge/Node.js-20+-green)
 
@@ -88,7 +88,7 @@ To get 10 languages, a dark theme, and a custom title:
 ## Deployment & Configuration
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 20+
 - TypeScript 5.0+
 - (Optional) Vercel or other Node.js hosting
 
@@ -115,7 +115,7 @@ vercel dev
 
 > The default endpoint is /api/languages
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/masonlet/github-top-languages-api&env=GITHUB_USERNAMES,GITHUB_ORGS,IGNORED_REPOS&envDescription[GITHUB_USERNAMES]=GitHub%20usernames%20to%20fetch%20repos%20from.%20See%20README%20for%20format.&envDescription[GITHUB_ORGS]=GitHub%20org%20names%20to%20fetch%20repos%20from.%20See%20README%20for%20format.&envDescription[IGNORED_REPOS]=Optional%20comma-separated%20repo%20names%20to%20exclude)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/gh-top-languages/api&env=GITHUB_USERNAMES,GITHUB_ORGS,IGNORED_REPOS&envDescription[GITHUB_USERNAMES]=GitHub%20usernames%20to%20fetch%20repos%20from.%20See%20README%20for%20format.&envDescription[GITHUB_ORGS]=GitHub%20org%20names%20to%20fetch%20repos%20from.%20See%20README%20for%20format.&envDescription[IGNORED_REPOS]=Optional%20comma-separated%20repo%20names%20to%20exclude)
 
 ## Error Responses
 
