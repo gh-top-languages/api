@@ -19,10 +19,10 @@ export default async function handler(
   try {
     if (errorTest) throw new Error(errorTest);
 
-    const rawData              = await fetchLanguageData(useTestData);
-    const normalizedData       = processLanguageData(rawData, count);
-    const { segments, legend } = generateChartData(normalizedData, selectedTheme, chartType, width, stroke);
-    const svg                  = renderSvg(width, height, selectedTheme.bg, segments, legend, chartTitle, selectedTheme.text);
+    const rawData        = await fetchLanguageData(useTestData);
+    const normalizedData = processLanguageData(rawData, count);
+    const chart          = generateChartData(normalizedData, selectedTheme, chartType, stroke);
+    const svg            = renderSvg(width, height, selectedTheme.bg, chart, chartTitle, selectedTheme.text);
     res.setHeader("Content-Type", "image/svg+xml");
     res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=3600, stale-while-revalidate=60");
     res.status(200).send(svg);

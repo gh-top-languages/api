@@ -56,7 +56,8 @@ describe("handler", () => {
     ];
     const chartData: ChartResult = {
       segments: '<path d="M 10 10..." />',
-      legend: '<g><rect ... /><text>JS</text></g>'
+      legend: '<g><rect ... /><text>JS</text></g>',
+      contentHeight: 0, contentWidth: 0,
     };
     const svgOutput = "<svg>chart</svg>";
 
@@ -69,8 +70,8 @@ describe("handler", () => {
 
     expect(fetchLanguageData).toHaveBeenCalledWith(false);
     expect(processLanguageData).toHaveBeenCalledWith(rawData, 5);
-    expect(generateChartData).toHaveBeenCalledWith(normalizedData, mockTheme, "donut", 600, false);
-    expect(renderSvg).toHaveBeenCalledWith(600, 400, "#ffffff", chartData.segments, chartData.legend, "Languages", "#000000");
+    expect(generateChartData).toHaveBeenCalledWith(normalizedData, mockTheme, "donut", false);
+    expect(renderSvg).toHaveBeenCalledWith(600, 400, "#ffffff", chartData, "Languages", "#000000");
     expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "image/svg+xml");
     expect(res.setHeader).toHaveBeenCalledWith("Cache-Control", "public, max-age=3600, s-maxage=3600, stale-while-revalidate=60");
     expect(res.status).toHaveBeenCalledWith(200);
