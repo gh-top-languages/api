@@ -72,6 +72,8 @@ Append these query parameters to the URL to customize the look and data of your 
 | `text`       | String  | Sets the chart text colour. Accepts hex (`ffffff`).  | `#000000`       | `?text=ffffff`             |
 | `bg`         | String  | Sets the chart background colour. Accepts hex (`ffffff`) or theme names (`dark`). | `default` | `?bg=dark` |
 | `c1`-`c16`   | String  | Sets individual colours for languages 1-16. Accepts hex codes.  | Auto-assigned | `?c1=ff0000&c2=00ff00` |
+| `gap`        | String  | Sets the colour for the unfilled ring when displayed languages sum to less than 100%. Accepts hex or theme names. | `default` | `?gap=333333` |
+| `gap_type`   | String  | Controls how the ring/legend handle partial counts. Options: `gap` (true-size + gap colour), `grow` (rescale ring, raw legend %), `adapt` (rescale ring, rescaled legend %). | `gap` | `?gap_type=adapt` |
 | `count`      | Number  | Sets the maximum number of languages to display. Max is **16**. | `8`           | `?count=10`            |
 | `width`      | Number  | Sets the width of the SVG in pixels.                            | `400`         | `?width=500`           |
 | `height`     | Number  | Sets the height of the SVG in pixels.                           | `300`         | `?height=350`          |
