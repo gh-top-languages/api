@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach   } from "vitest";
 import type { VercelRequest, VercelResponse     } from "@vercel/node";
-import type { ChartResult                       } from "@gh-top-languages/lib/types.js";
 import { parseQueryParams                       } from "@gh-top-languages/lib/utils/params.js";
-import { generateChartData                      } from "@gh-top-languages/lib/render/chart.js";
+import type { ChartResult                       } from "@gh-top-languages/lib/charts/types.js";
+import { generateChartData                      } from "@gh-top-languages/lib/charts/generate.js";
 import { renderSvg                              } from "@gh-top-languages/lib/render/svg.js";
 import { renderError                            } from "@gh-top-languages/lib/render/error.js";
 import   handler                                  from "../../../api/languages/index.js";
 import { fetchLanguageData, processLanguageData } from "../../../src/services/github.js";
 
 vi.mock("@gh-top-languages/lib/utils/params.js");
-vi.mock("@gh-top-languages/lib/render/chart.js");
+vi.mock("@gh-top-languages/lib/charts/generate.js");
 vi.mock("@gh-top-languages/lib/render/svg.js");
 vi.mock("@gh-top-languages/lib/render/error.js");
 vi.mock("../../../src/services/github.js");
@@ -18,9 +18,10 @@ describe("handler", () => {
   let req: VercelRequest;
   let res: VercelResponse;
 
-  const mockTheme = { 
-    bg: "#ffffff", 
-    text: "#000000", 
+  const mockTheme = {
+    bg: "#ffffff",
+    text: "#000000",
+    gap: "#cccccc",
     colours: [] as string[]
   } as const;
 
@@ -42,6 +43,7 @@ describe("handler", () => {
       height:        400,
       count:         5,
       selectedTheme: mockTheme,
+      gapType:       "gap",
       stroke:        false,
       useTestData:   false,
       errorTest:     ''
@@ -70,7 +72,7 @@ describe("handler", () => {
 
     expect(fetchLanguageData).toHaveBeenCalledWith(false);
     expect(processLanguageData).toHaveBeenCalledWith(rawData, 5);
-    expect(generateChartData).toHaveBeenCalledWith(normalizedData, mockTheme, "donut", false);
+    expect(generateChartData).toHaveBeenCalledWith(normalizedData, mockTheme, "donut", "gap", false);
     expect(renderSvg).toHaveBeenCalledWith(600, 400, "#ffffff", chartData, "Languages", "#000000");
     expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "image/svg+xml");
     expect(res.setHeader).toHaveBeenCalledWith("Cache-Control", "public, max-age=3600, s-maxage=3600, stale-while-revalidate=60");
@@ -115,7 +117,7 @@ describe("handler", () => {
     vi.mocked(parseQueryParams).mockReturnValue({
       chartType: "donut", chartTitle: "Languages",
       width: 600, height: 400, count: 5,
-      selectedTheme: mockTheme, stroke: false,
+      selectedTheme: mockTheme, gapType: "gap", stroke: false,
       useTestData: false, errorTest: "test error"
     });
     const errorSvg = "<svg>error</svg>";

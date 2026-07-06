@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse     } from "@vercel/node";
 import { parseQueryParams, type QueryParams     } from "@gh-top-languages/lib/utils/params.js";
-import { generateChartData                      } from "@gh-top-languages/lib/render/chart.js";
+import { generateChartData                      } from "@gh-top-languages/lib/charts/generate.js";
 import { renderSvg                              } from "@gh-top-languages/lib/render/svg.js";
 import { renderError                            } from "@gh-top-languages/lib/render/error.js";
 import { fetchLanguageData, processLanguageData } from "../../src/services/github.js";
@@ -12,7 +12,7 @@ export default async function handler(
   const {
     chartType, chartTitle,
     width, height, count,
-    selectedTheme, stroke,
+    selectedTheme, gapType, stroke,
     useTestData, errorTest
   } = parseQueryParams(req.query as QueryParams);
 
@@ -21,7 +21,7 @@ export default async function handler(
 
     const rawData        = await fetchLanguageData(useTestData);
     const normalizedData = processLanguageData(rawData, count);
-    const chart          = generateChartData(normalizedData, selectedTheme, chartType, stroke);
+    const chart          = generateChartData(normalizedData, selectedTheme, chartType, gapType, stroke);
     const svg            = renderSvg(width, height, selectedTheme.bg, chart, chartTitle, selectedTheme.text);
     res.setHeader("Content-Type", "image/svg+xml");
     res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=3600, stale-while-revalidate=60");
