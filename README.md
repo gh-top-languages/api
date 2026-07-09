@@ -26,8 +26,10 @@ Deployable **GitHub language chart generator** — embeddable SVGs for READMEs a
 
 ## Table of Contents
 - [Features](#features)
+- [Customize Your Charts](#customize-your-charts)
 - [Usage](#usage)
-- [Parameters](#customization-options)
+- [Parameters](#parameter-options)
+- [Library](#library)
 - [Deployment & Configuration](#deployment--configuration)
   - [Prerequisites](#prerequisites)
   - [Configure `.env`](#configuration)
@@ -46,6 +48,9 @@ Deployable **GitHub language chart generator** — embeddable SVGs for READMEs a
 - Ignores forks and optionally specific repositories (`IGNORED_REPOS`).
 - Uses **hourly caching** to reduce API calls and improve performance.
 
+## Customize Your Charts
+Prefer a visual workflow? Use the [@gh-top-languages/builder](https://github.com/gh-top-languages/builder) to preview themes, colours, and layout options interactively, then easily copy the generated embed URL to quickly deploy.
+
 ## Usage
 
 ### Markdown (For READMEs)
@@ -61,7 +66,7 @@ Deployable **GitHub language chart generator** — embeddable SVGs for READMEs a
 />
 ```
 
-### Customization Options
+### Parameter Options
 #### API-Only Parameters
 | Parameter | Type    | Description | Default | Example |
 | :---      | :---    | :--- | :--- | :--- |
@@ -71,11 +76,8 @@ Deployable **GitHub language chart generator** — embeddable SVGs for READMEs a
 #### Query Parameters
 Full parameter reference lives in the [lib README](https://github.com/gh-top-languages/lib#query-parameters).
 
-#### Example URL
-To get 10 languages, a dark theme, and a custom title:
-```markdown
-![My Custom Chart](https://your-deployment-url.vercel.app/api/languages?count=10&theme=dark&title=My%20Top%2010%20Languages)
-```
+## Library
+Chart rendering, theming, and parameter parsing are powered by [@gh-top-languages/lib](https://github.com/gh-top-languages/lib).
 
 ## Deployment & Configuration
 
