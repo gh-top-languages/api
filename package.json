@@ -15,11 +15,12 @@
   },
   "license": "MIT",
   "author": "Mason L'Etoile",
-  "repository": {
+    "repository": {
     "type": "git",
     "url": "git+https://github.com/gh-top-languages/api.git"
   },
   "type": "module",
+  "engines": { "node": ">=22" },
   "scripts": {
     "test": "vitest",
     "test:watch": "vitest --watch",
