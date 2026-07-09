@@ -61,25 +61,7 @@ Deployable **GitHub language chart generator** — embeddable SVGs for READMEs a
 ```
 
 ### Customization Options
-Append these query parameters to the URL to customize the look and data of your chart:
-
-| Parameter    | Type    | Description | Default | Example |
-| :---         | :---    | :--- | :--- | :--- |
-| `theme`      | String  | Sets the colour scheme. Available options: `default`, `light`, `dark`. | `default`  | `?theme=dark` |
-| `type`       | String  | Sets the chart type. Available options: `donut`, `pie`.                | `donut`    | `?type=pie`   |
-| `title`      | String  | Sets a custom title for the chart.                   | `Top Languages` | `?title=My%20Code%20Stack` |
-| `hide_title` | Boolean | Hides the chart title completely.                    | `false`         | `?hide_title=true`         |
-| `text`       | String  | Sets the chart text colour. Accepts hex (`ffffff`).  | `#000000`       | `?text=ffffff`             |
-| `bg`         | String  | Sets the chart background colour. Accepts hex (`ffffff`) or theme names (`dark`). | `default` | `?bg=dark` |
-| `c1`-`c16`   | String  | Sets individual colours for languages 1-16. Accepts hex codes.  | Auto-assigned | `?c1=ff0000&c2=00ff00` |
-| `gap`        | String  | Sets the colour for the unfilled ring when displayed languages sum to less than 100%. Accepts hex or theme names. | `default` | `?gap=333333` |
-| `gap_type`   | String  | Controls how the ring/legend handle partial counts. Options: `gap` (true-size + gap colour), `grow` (rescale ring, raw legend %), `adapt` (rescale ring, rescaled legend %). | `gap` | `?gap_type=adapt` |
-| `count`      | Number  | Sets the maximum number of languages to display. Max is **16**. | `8`           | `?count=10`            |
-| `width`      | Number  | Sets the width of the SVG in pixels. Minimum of 400.            | `400`         | `?width=500`           |
-| `height`     | Number  | Sets the height of the SVG in pixels. Minimum of 265.           | `300`         | `?height=350`          |
-| `stroke`     | Boolean | Adds an outline stroke to chart segments.                       | `false`       | `?stroke=true`         |
-| `test`       | Boolean | Uses sample data instead of fetching from GitHub API.          | `false`       | `?test=true`           |
-| `error`      | String  | Forces an error SVG with the given message. For testing only.   | —             | `?error=test`          |
+Full query parameter reference lives in the [lib README](https://github.com/gh-top-languages/lib#query-parameters).
 
 #### Example URL
 To get 10 languages, a dark theme, and a custom title:
