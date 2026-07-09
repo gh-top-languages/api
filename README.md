@@ -78,7 +78,7 @@ Append these query parameters to the URL to customize the look and data of your 
 | `width`      | Number  | Sets the width of the SVG in pixels.                            | `400`         | `?width=500`           |
 | `height`     | Number  | Sets the height of the SVG in pixels.                           | `300`         | `?height=350`          |
 | `stroke`     | Boolean | Adds an outline stroke to chart segments.                       | `false`       | `?stroke=true`         |
-| `test`       | Boolean | Uses samples data instead of fetching from GitHub API.          | `false`       | `?test=true`           |
+| `test`       | Boolean | Uses sample data instead of fetching from GitHub API.          | `false`       | `?test=true`           |
 | `error`      | String  | Forces an error SVG with the given message. For testing only.   | —             | `?error=test`          |
 
 #### Example URL
