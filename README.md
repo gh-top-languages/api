@@ -110,7 +110,7 @@ Copy `.env.example` to `.env`, and update the variables.
 ### Running Locally
 ```bash
 vercel dev
-# Your endpoint will be available at https://localhost:3000/api/languages (or your configured port)
+# Your endpoint will be available at http://localhost:3000/api/languages (or your configured port)
 ```
 
 ### Deployment
