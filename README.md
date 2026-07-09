@@ -3,7 +3,7 @@
 Deployable **GitHub language chart generator** — embeddable SVGs for READMEs and websites.
 
 [![CI](https://github.com/gh-top-languages/api/actions/workflows/ci.yml/badge.svg)](https://github.com/gh-top-languages/api/actions/workflows/ci.yml)
-![Node](https://img.shields.io/badge/Node.js-20+-green)
+![Node](https://img.shields.io/badge/Node.js-22+-green)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
 
 ![Example 8 Top Languages Chart](images/default8.png)
@@ -79,7 +79,7 @@ To get 10 languages, a dark theme, and a custom title:
 ## Deployment & Configuration
 
 ### Prerequisites
-- Node.js 20+
+- Node.js 22+
 - TypeScript 5.0+
 - (Optional) Vercel or other Node.js hosting
 
