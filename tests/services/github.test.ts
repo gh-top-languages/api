@@ -368,12 +368,15 @@ describe("processLanguageData", () => {
     expect(result.map(l => l.lang)).toEqual(["JavaScript", "Python"]);
   });
 
-  it("renormalizes percentages after slicing", () => {
+  it("does not renormalize percentages after slicing", () => {
     const data = { JavaScript: 5000, Python: 3000, HTML: 2000 };
     const result = processLanguageData(data, 2);
 
+    expect(result[0]).toEqual({ lang: "JavaScript", pct: 50 });
+    expect(result[1]).toEqual({ lang: "Python", pct: 30 });
+
     const totalPct = result.reduce((sum, l) => sum + l.pct, 0);
-    expect(totalPct).toBeCloseTo(100);
+    expect(totalPct).toBeCloseTo(80);
   });
 
   it("throws when no language data", () => {

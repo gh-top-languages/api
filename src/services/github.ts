@@ -146,12 +146,7 @@ export function processLanguageData(languageBytes: LanguageBytes, count: number)
     .map(([lang, bytes]) => ({ lang, pct: (bytes / totalBytes) * 100 }))
     .sort((a, b) => b.pct - a.pct);
 
-  const topLanguages = sortedLanguages.slice(0, count);
-  const totalPct     = topLanguages.reduce((sum, lang) => sum + lang.pct, 0);
-  return topLanguages.map(lang => ({
-    ...lang,
-    pct: (lang.pct / totalPct) * 100
-  }));
+  return sortedLanguages.slice(0, count);
 }
 
 export function resetCache(): void {
