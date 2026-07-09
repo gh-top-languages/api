@@ -2,7 +2,7 @@
 
 Deployable **GitHub language chart generator** — embeddable SVGs for READMEs and websites.
 
-[![Tests](https://github.com/gh-top-languages/api/actions/workflows/ci.yml/badge.svg)](https://github.com/gh-top-languages/api/actions/workflows/ci.yml)
+[![CI](https://github.com/gh-top-languages/api/actions/workflows/ci.yml/badge.svg)](https://github.com/gh-top-languages/api/actions/workflows/ci.yml)
 ![Node](https://img.shields.io/badge/Node.js-20+-green)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
 
