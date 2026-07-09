@@ -33,6 +33,7 @@ Deployable **GitHub language chart generator** — embeddable SVGs for READMEs a
   - [Configure `.env`](#configuration)
   - [Local Development](#running-locally)
   - [Deploying](#deployment)
+- [Error Responses](#error-responses)
 - [License](#license)
 
 ## Features
