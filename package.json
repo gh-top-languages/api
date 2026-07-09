@@ -1,6 +1,5 @@
 {
   "name": "@gh-top-languages/api",
-  "version": "1.0.0",
   "description": "Deployable GitHub language chart generator — embeddable SVGs for READMEs and websites",
   "keywords": [
     "typescript",
