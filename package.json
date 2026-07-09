@@ -1,17 +1,7 @@
 {
   "name": "@gh-top-languages/api",
-  "description": "Deployable GitHub language chart generator — embeddable SVGs for READMEs and websites",
-  "author": "Mason L'Etoile",
   "version": "1.0.0",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gh-top-languages/api.git"
-  },
-  "homepage": "https://github.com/gh-top-languages/api#readme",
-  "bugs": {
-    "url": "https://github.com/gh-top-languages/api/issues"
-  },
+  "description": "Deployable GitHub language chart generator — embeddable SVGs for READMEs and websites",
   "keywords": [
     "typescript",
     "github-profile",
@@ -19,6 +9,16 @@
     "top-languages",
     "svg"
   ],
+  "homepage": "https://github.com/gh-top-languages/api#readme",
+  "bugs": {
+    "url": "https://github.com/gh-top-languages/api/issues"
+  },
+  "license": "MIT",
+  "author": "Mason L'Etoile",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gh-top-languages/api.git"
+  },
   "type": "module",
   "scripts": {
     "test": "vitest",
