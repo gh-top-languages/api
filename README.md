@@ -2,9 +2,9 @@
 
 Deployable **GitHub language chart generator** — embeddable SVGs for READMEs and websites.
 
-[![Tests](https://github.com/gh-top-languages/api/actions/workflows/tests.yml/badge.svg)](https://github.com/gh-top-languages/api/actions/workflows/tests.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
+[![CI](https://github.com/gh-top-languages/api/actions/workflows/ci.yml/badge.svg)](https://github.com/gh-top-languages/api/actions/workflows/ci.yml)
 ![Node](https://img.shields.io/badge/Node.js-20+-green)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
 
 ![Example 8 Top Languages Chart](images/default8.png)
 
@@ -75,10 +75,10 @@ Append these query parameters to the URL to customize the look and data of your 
 | `gap`        | String  | Sets the colour for the unfilled ring when displayed languages sum to less than 100%. Accepts hex or theme names. | `default` | `?gap=333333` |
 | `gap_type`   | String  | Controls how the ring/legend handle partial counts. Options: `gap` (true-size + gap colour), `grow` (rescale ring, raw legend %), `adapt` (rescale ring, rescaled legend %). | `gap` | `?gap_type=adapt` |
 | `count`      | Number  | Sets the maximum number of languages to display. Max is **16**. | `8`           | `?count=10`            |
-| `width`      | Number  | Sets the width of the SVG in pixels.                            | `400`         | `?width=500`           |
-| `height`     | Number  | Sets the height of the SVG in pixels.                           | `300`         | `?height=350`          |
+| `width`      | Number  | Sets the width of the SVG in pixels. Minimum of 400.            | `400`         | `?width=500`           |
+| `height`     | Number  | Sets the height of the SVG in pixels. Minimum of 265.           | `300`         | `?height=350`          |
 | `stroke`     | Boolean | Adds an outline stroke to chart segments.                       | `false`       | `?stroke=true`         |
-| `test`       | Boolean | Uses samples data instead of fetching from GitHub API.          | `false`       | `?test=true`           |
+| `test`       | Boolean | Uses sample data instead of fetching from GitHub API.          | `false`       | `?test=true`           |
 | `error`      | String  | Forces an error SVG with the given message. For testing only.   | —             | `?error=test`          |
 
 #### Example URL
@@ -104,13 +104,13 @@ npm install
 ### Configuration
 Copy `.env.example` to `.env`, and update the variables.
 - `GITHUB_USERNAMES`: GitHub usernames to fetch repositories from. Accepts a single value (`masonlet`), comma-separated (`masonlet,secondlet`), or a JSON array with optional per-user tokens (`["masonlet", {"name": "other", "token": "github_pat_..."}]`).
-- `GITHUB_ORGS`: GitHub organization names to fetch repositories from. Accepts a single value (`gh-top-languages`), comma-separated(`gh-top-languages,starweb-libs`), or a JSON array with optional per-org tokens (`["gh-top-languages", {"name": "starweb-libs", "token": "github_pat_..."}]`)
+- `GITHUB_ORGS`: GitHub organization names to fetch repositories from. Accepts a single value (`gh-top-languages`), comma-separated (`gh-top-languages,starweb-libs`), or a JSON array with optional per-org tokens (`["gh-top-languages", {"name": "starweb-libs", "token": "github_pat_..."}]`)
 - `IGNORED_REPOS`: Optional comma-separated repo names to exclude from the chart.
 
 ### Running Locally
 ```bash
 vercel dev
-# Your endpoint will be available at https://localhost:3000/api/languages (or your configured port)
+# Your endpoint will be available at http://localhost:3000/api/languages (or your configured port)
 ```
 
 ### Deployment
