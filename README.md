@@ -75,8 +75,8 @@ Append these query parameters to the URL to customize the look and data of your 
 | `gap`        | String  | Sets the colour for the unfilled ring when displayed languages sum to less than 100%. Accepts hex or theme names. | `default` | `?gap=333333` |
 | `gap_type`   | String  | Controls how the ring/legend handle partial counts. Options: `gap` (true-size + gap colour), `grow` (rescale ring, raw legend %), `adapt` (rescale ring, rescaled legend %). | `gap` | `?gap_type=adapt` |
 | `count`      | Number  | Sets the maximum number of languages to display. Max is **16**. | `8`           | `?count=10`            |
-| `width`      | Number  | Sets the width of the SVG in pixels.                            | `400`         | `?width=500`           |
-| `height`     | Number  | Sets the height of the SVG in pixels.                           | `300`         | `?height=350`          |
+| `width`      | Number  | Sets the width of the SVG in pixels. Minimum of 400.            | `400`         | `?width=500`           |
+| `height`     | Number  | Sets the height of the SVG in pixels. Minimum of 265.           | `300`         | `?height=350`          |
 | `stroke`     | Boolean | Adds an outline stroke to chart segments.                       | `false`       | `?stroke=true`         |
 | `test`       | Boolean | Uses sample data instead of fetching from GitHub API.          | `false`       | `?test=true`           |
 | `error`      | String  | Forces an error SVG with the given message. For testing only.   | —             | `?error=test`          |
