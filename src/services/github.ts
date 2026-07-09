@@ -1,5 +1,6 @@
-import { REFRESH_INTERVAL } from "@gh-top-languages/lib/constants/config.js";
-import type { Language    } from "@gh-top-languages/lib/charts/types.js";
+import type { Language } from "@gh-top-languages/lib/charts/types.js";
+
+const REFRESH_INTERVAL = 1000 * 60 * 60;
 
 type Repo = {
   name:      string;

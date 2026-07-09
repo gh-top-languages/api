@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse     } from "@vercel/node";
 import { parseQueryParams, type QueryParams     } from "@gh-top-languages/lib/utils/params.js";
+import { sanitize                                } from "@gh-top-languages/lib/utils/sanitize.js";
 import { generateChartData                      } from "@gh-top-languages/lib/charts/generate.js";
 import { renderSvg                              } from "@gh-top-languages/lib/render/svg.js";
 import { renderError                            } from "@gh-top-languages/lib/render/error.js";
@@ -12,14 +13,14 @@ export default async function handler(
   const {
     chartType, chartTitle,
     width, height, count,
-    selectedTheme, gapType, stroke,
-    useTestData, errorTest
+    selectedTheme, gapType, stroke
   } = parseQueryParams(req.query as QueryParams);
 
+  const errorTest = sanitize(req.query["error"] ?? "");
   try {
     if (errorTest) throw new Error(errorTest);
 
-    const rawData        = await fetchLanguageData(useTestData);
+    const rawData        = await fetchLanguageData(req.query["test"] === "true");
     const normalizedData = processLanguageData(rawData, count);
     const chart          = generateChartData(normalizedData, selectedTheme, chartType, gapType, stroke);
     const svg            = renderSvg(width, height, selectedTheme.bg, chart, chartTitle, selectedTheme.text);

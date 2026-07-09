@@ -44,9 +44,7 @@ describe("handler", () => {
       count:         5,
       selectedTheme: mockTheme,
       gapType:       "gap",
-      stroke:        false,
-      useTestData:   false,
-      errorTest:     ''
+      stroke:        false
     });
   });
 
@@ -113,13 +111,8 @@ describe("handler", () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
-  it("throws error when errorTest param is set", async () => {
-    vi.mocked(parseQueryParams).mockReturnValue({
-      chartType: "donut", chartTitle: "Languages",
-      width: 600, height: 400, count: 5,
-      selectedTheme: mockTheme, gapType: "gap", stroke: false,
-      useTestData: false, errorTest: "test error"
-    });
+  it("throws error when error query param is set", async () => {
+    req = { query: { error: "test error" } } as unknown as VercelRequest;
     const errorSvg = "<svg>error</svg>";
     vi.mocked(renderError).mockReturnValue(errorSvg);
 

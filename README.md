@@ -61,7 +61,14 @@ Deployable **GitHub language chart generator** — embeddable SVGs for READMEs a
 ```
 
 ### Customization Options
-Full query parameter reference lives in the [lib README](https://github.com/gh-top-languages/lib#query-parameters).
+#### API-Only Parameters
+| Parameter | Type    | Description | Default | Example |
+| :---      | :---    | :--- | :--- | :--- |
+| `test`    | Boolean | Uses sample data instead of fetching from GitHub API. | `false` | `?test=true` |
+| `error`   | String  | Forces an error SVG with the given message. For testing only. | — | `?error=test` |
+
+#### Query Parameters
+Full parameter reference lives in the [lib README](https://github.com/gh-top-languages/lib#query-parameters).
 
 #### Example URL
 To get 10 languages, a dark theme, and a custom title:
