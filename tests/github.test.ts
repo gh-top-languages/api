@@ -137,11 +137,44 @@ describe("fetchLanguageData", () => {
 
     mockFetch()
       .mockResolvedValueOnce(mockResponse(repos))
-      .mockResolvedValueOnce(mockErrorResponse(403)) // Failed language fetch
+      .mockResolvedValueOnce(mockErrorResponse(403))
       .mockResolvedValueOnce(mockResponse({ Python: 500 }));
 
     const result = await fetchLanguageData();
     expect(result).toEqual({ Python: 500 });
+  });
+
+  it("does not cache a cold-start total failure and retries on next call", async () => {
+    mockFetch().mockResolvedValueOnce(mockErrorResponse(500, "Internal Server Error"));
+    await fetchLanguageData();
+
+    mockFetch().mockResolvedValueOnce(mockResponse([repos[0]])).mockResolvedValueOnce(mockResponse(languages));
+    const result = await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledTimes(3);
+    expect(result).toEqual(languages);
+  });
+
+  it("does not cache a partial failure as complete and retries on next call", async () => {
+    const twoRepos = [
+      { name: "repo1", fork: false, full_name: "user/repo1" },
+      { name: "repo2", fork: false, full_name: "user/repo2" }
+    ];
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(twoRepos))
+      .mockRejectedValueOnce(new Error("Network error"))
+      .mockResolvedValueOnce(mockResponse({ Python: 500 }));
+    await fetchLanguageData();
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(twoRepos))
+      .mockResolvedValueOnce(mockResponse({ JavaScript: 1000 }))
+      .mockResolvedValueOnce(mockResponse({ Python: 500 }));
+    const result = await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledTimes(6);
+    expect(result).toEqual({ JavaScript: 1000, Python: 500 });
   });
 
   it("fetches from organizations", async () => {
