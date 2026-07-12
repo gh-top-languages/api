@@ -43,7 +43,10 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "checkJs": false,
-    "noEmit": true
+    "noEmit": true,
+
+    // Type Declarations
+    "types": ["node"]
   },
   "include": [
     "./src/**/*.ts",
