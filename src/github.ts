@@ -14,6 +14,7 @@ type LanguageBytes = Record<string, number>;
 
 let cachedLanguageData: LanguageBytes | null = null;
 let lastRefresh = 0;
+let inFlightFetch: Promise<LanguageBytes> | null = null;
 
 function parseSources(env: string | undefined): Source[] {
   if (!env) return [];
@@ -71,15 +72,7 @@ async function fetchAllRepos(url: string, token?: string): Promise<Repo[]> {
   return repos;
 }
 
-export async function fetchLanguageData(useTestData = false): Promise<LanguageBytes> {
-  if (useTestData) {
-    const testData = await import ("./test-data.json", { with: { type: "json" } });
-    return testData.default;
-  }
-
-  const now = Date.now();
-  if (cachedLanguageData && now - lastRefresh < REFRESH_INTERVAL) return cachedLanguageData;
-
+async function fetchAndAggregate(now: number): Promise<LanguageBytes> {
   const usernames = parseSources(process.env["GITHUB_USERNAMES"]);
   const orgs      = parseSources(process.env["GITHUB_ORGS"]);
 
@@ -141,6 +134,20 @@ export async function fetchLanguageData(useTestData = false): Promise<LanguageBy
   return result;
 }
 
+export async function fetchLanguageData(useTestData = false): Promise<LanguageBytes> {
+  if (useTestData) {
+    const testData = await import ("./test-data.json", { with: { type: "json" } });
+    return testData.default;
+  }
+
+  const now = Date.now();
+  if (cachedLanguageData && now - lastRefresh < REFRESH_INTERVAL) return cachedLanguageData;
+
+  if (inFlightFetch) return inFlightFetch;
+  inFlightFetch = fetchAndAggregate(now).finally(() => { inFlightFetch = null; });
+  return inFlightFetch;
+}
+
 export function processLanguageData(languageBytes: LanguageBytes, count: number): Language[] {
   if (Object.keys(languageBytes).length === 0) throw new Error("No language data available");
 
@@ -156,4 +163,6 @@ export function processLanguageData(languageBytes: LanguageBytes, count: number)
 export function resetCache(): void {
   cachedLanguageData = null;
   lastRefresh = 0;
+  inFlightFetch = null;
 }
+

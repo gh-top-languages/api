@@ -51,6 +51,12 @@ describe("fetchLanguageData", () => {
     await expect(fetchLanguageData()).rejects.toThrow("At least one of GITHUB_USERNAMES or GITHUB_ORGS must be set");
   });
 
+  it("propagates a rejection to all concurrent callers", async () => {
+    vi.unstubAllEnvs();
+    await expect(Promise.all([fetchLanguageData(), fetchLanguageData()]))
+      .rejects.toThrow("At least one of GITHUB_USERNAMES or GITHUB_ORGS must be set");
+  });
+
   it("handles missing IGNORED_REPOS env variable", async () => {
     vi.unstubAllEnvs();
     vi.stubEnv("GITHUB_USERNAMES", `["testuser"]`);
@@ -149,6 +155,20 @@ describe("fetchLanguageData", () => {
     const result2 = await fetchLanguageData();
     expect(result1).toBe(result2);
     expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("coalesces concurrent calls into a single fetch", async () => {
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    const [result1, result2] = await Promise.all([
+      fetchLanguageData(),
+      fetchLanguageData()
+    ]);
+
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(result1).toBe(result2);
   });
 
   it("handles failed language fetch gracefully", async () => {
