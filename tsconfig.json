@@ -21,8 +21,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "importsNotUsedAsValues": "remove",
-    "preserveValueImports": false,
 
     // Safety/Validation
     "noErrorTruncation": true,
