@@ -108,7 +108,7 @@ vercel dev
 
 > The default endpoint is /api/languages
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/gh-top-languages/api&env=GITHUB_USERNAMES,GITHUB_ORGS,IGNORED_REPOS&envDescription[GITHUB_USERNAMES]=GitHub%20usernames%20to%20fetch%20repos%20from.%20See%20README%20for%20format.&envDescription[GITHUB_ORGS]=GitHub%20org%20names%20to%20fetch%20repos%20from.%20See%20README%20for%20format.&envDescription[IGNORED_REPOS]=Optional%20comma-separated%20repo%20names%20to%20exclude)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/gh-top-languages/api&env=GITHUB_USERNAMES,GITHUB_ORGS,IGNORED_REPOS&envDescription=GITHUB_USERNAMES%20and%2For%20GITHUB_ORGS%3A%20GitHub%20users%2Forgs%20to%20fetch%20repos%20from.%20IGNORED_REPOS%3A%20optional%20comma-separated%20repo%20names%20to%20exclude.&envLink=https%3A%2F%2Fgithub.com%2Fgh-top-languages%2Fapi%23configuration)
 
 ## Error Responses
 
