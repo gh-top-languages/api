@@ -128,9 +128,12 @@ export async function fetchLanguageData(useTestData = false): Promise<LanguageBy
     return acc;
   }, {});
 
-  if (Object.keys(result).length === 0 && hadFetchFailure && cachedLanguageData !== null) {
-    lastRefresh = now - REFRESH_INTERVAL + (5 * 60 * 1000);
-    return cachedLanguageData;
+  if (hadFetchFailure) {
+    if (cachedLanguageData !== null) {
+      lastRefresh = now - REFRESH_INTERVAL + (5 * 60 * 1000);
+      return cachedLanguageData;
+    }
+    return result;
   }
 
   cachedLanguageData = result;
