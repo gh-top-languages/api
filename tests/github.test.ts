@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach    } from "vitest";
-import { fetchLanguageData, processLanguageData, resetCache } from "../../src/services/github.js";
+import { fetchLanguageData, processLanguageData, resetCache } from "../src/github.js";
 
 const repos = [
   { name: "repo1",        fork: false, full_name: "user/repo1"        },
@@ -103,9 +103,7 @@ describe("fetchLanguageData", () => {
   });
 
   it("handles repos API error gracefully", async () => {
-    mockFetch()
-      .mockResolvedValueOnce(mockErrorResponse(404, "Not Found"));
-
+    mockFetch().mockResolvedValueOnce(mockErrorResponse(404, "Not Found"));
     const result = await fetchLanguageData();
     expect(result).toEqual({});
   });
@@ -114,8 +112,7 @@ describe("fetchLanguageData", () => {
     vi.unstubAllEnvs();
     vi.stubEnv("GITHUB_ORGS", '["test-org"]');
 
-    mockFetch()
-      .mockResolvedValueOnce(mockErrorResponse(403, "Forbidden"));
+    mockFetch().mockResolvedValueOnce(mockErrorResponse(403, "Forbidden"));
 
     const result = await fetchLanguageData();
     expect(result).toEqual({});

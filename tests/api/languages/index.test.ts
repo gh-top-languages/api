@@ -6,13 +6,13 @@ import { generateChartData                      } from "@gh-top-languages/lib/ch
 import { renderSvg                              } from "@gh-top-languages/lib/render/svg.js";
 import { renderError                            } from "@gh-top-languages/lib/render/error.js";
 import   handler                                  from "../../../api/languages/index.js";
-import { fetchLanguageData, processLanguageData } from "../../../src/services/github.js";
+import { fetchLanguageData, processLanguageData } from "../../../src/github.js";
 
 vi.mock("@gh-top-languages/lib/utils/params.js");
 vi.mock("@gh-top-languages/lib/charts/generate.js");
 vi.mock("@gh-top-languages/lib/render/svg.js");
 vi.mock("@gh-top-languages/lib/render/error.js");
-vi.mock("../../../src/services/github.js");
+vi.mock("../../../src/github.js");
 
 describe("handler", () => {
   let req: VercelRequest;
@@ -87,7 +87,7 @@ describe("handler", () => {
 
     await handler(req, res);
 
-    expect(renderError).toHaveBeenCalledWith("GitHub API error", 600, 400, mockTheme);
+    expect(renderError).toHaveBeenCalledWith("GitHub API error", 400, 300);
     expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "image/svg+xml");
     expect(res.setHeader).toHaveBeenCalledWith("Cache-Control", "no-store");
     expect(res.setHeader).toHaveBeenCalledWith("X-Chart-Error", "true");
@@ -105,7 +105,7 @@ describe("handler", () => {
 
     await handler(req, res);
 
-    expect(renderError).toHaveBeenCalledWith("No language data available", 600, 400, mockTheme);
+    expect(renderError).toHaveBeenCalledWith("No language data available", 400, 300);
     expect(res.setHeader).toHaveBeenCalledWith("Cache-Control", "no-store");
     expect(res.setHeader).toHaveBeenCalledWith("X-Chart-Error", "true");
     expect(res.status).toHaveBeenCalledWith(200);
@@ -118,7 +118,7 @@ describe("handler", () => {
 
     await handler(req, res);
 
-    expect(renderError).toHaveBeenCalledWith("test error", 600, 400, mockTheme);
+    expect(renderError).toHaveBeenCalledWith("test error", 400, 300);
     expect(res.status).toHaveBeenCalledWith(200);
   });
 });

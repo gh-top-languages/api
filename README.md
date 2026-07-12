@@ -83,7 +83,6 @@ Chart rendering, theming, and parameter parsing are powered by [@gh-top-language
 
 ### Prerequisites
 - Node.js 22+
-- (Optional) Vercel or other Node.js hosting
 
 ### Installation
 ```bash
@@ -99,14 +98,28 @@ Copy `.env.example` to `.env`, and update the variables.
 - `IGNORED_REPOS`: Optional comma-separated repo names to exclude from the chart.
 
 ### Running Locally
+Your endpoint will be available at http://localhost:3000/api/languages (or your configured PORT)
+
 ```bash
+# Build and serve node:http server
+npm start
+
+# Serve vercel serverless endpoint (requires Vercel CLI).
 vercel dev
-# Your endpoint will be available at http://localhost:3000/api/languages (or your configured port)
 ```
 
 ### Deployment
 
+Builds to `dist/` and runs a plain `node:http` server. Requires a configured `.env` (or use ?test=true for sample data).
+
 > The default endpoint is /api/languages
+
+Any **Node.js** host: the server is a standalone `node:http` entry:
+```bash
+npm start
+```
+
+Or, deploy with Vercel:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/gh-top-languages/api&env=GITHUB_USERNAMES,GITHUB_ORGS,IGNORED_REPOS&envDescription=GITHUB_USERNAMES%20and%2For%20GITHUB_ORGS%3A%20GitHub%20users%2Forgs%20to%20fetch%20repos%20from.%20IGNORED_REPOS%3A%20optional%20comma-separated%20repo%20names%20to%20exclude.&envLink=https%3A%2F%2Fgithub.com%2Fgh-top-languages%2Fapi%23configuration)
 

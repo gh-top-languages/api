@@ -25,7 +25,9 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "npm run build && node --env-file-if-exists=.env dist/server.js"
   },
   "dependencies": {
     "@gh-top-languages/lib": "^1.2.1"
