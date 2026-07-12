@@ -30,7 +30,7 @@
     "start": "npm run build && node --env-file-if-exists=.env dist/server.js"
   },
   "dependencies": {
-    "@gh-top-languages/lib": "^1.2.1"
+    "@gh-top-languages/lib": "^1.2.3"
   },
   "devDependencies": {
     "@types/node": "^25.3.1",
