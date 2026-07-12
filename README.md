@@ -44,7 +44,7 @@ Deployable **GitHub language chart generator** — embeddable SVGs for READMEs a
     - **Theming**: Supports `default`, `light`, and `dark` themes.
     - **Custom Colours**: Set background (`bg`), text (`text`), and individual language colours (`c1`-`c16`) via query parameters. 
 - **Dynamic Layout:** The legend automatically shifts to a **two-column layout** when displaying 9 or more languages.
-- Automatically fetches all public GitHub repositories, and private repositories with a token.
+- Automatically fetches all public GitHub repositories. Organization sources with a token also include private repos visible to that token.
 - Ignores forks and optionally specific repositories (`IGNORED_REPOS`).
 - Uses **hourly caching** to reduce API calls and improve performance.
 
@@ -128,9 +128,10 @@ Or, deploy with Vercel:
 All errors return HTTP 200 with an error SVG so they render in GitHub README embeds.
 
 Common error messages:
+- `At least one of GITHUB_USERNAMES or GITHUB_ORGS must be set` — missing environment configuration
+- `GITHUB_USERNAMES/GITHUB_ORGS must be a valid JSON array. Check your configuration.` — malformed JSON array in env config
 - `GitHub API error: {status} {statusText}` — GitHub API request failed
 - `No language data available` — no public repositories found
-- `At least one of GITHUB_USERNAMES or GITHUB_ORGS must be set` — missing environment configuration
 
 ## License
 MIT License - see [LICENSE](./LICENSE) for details.
