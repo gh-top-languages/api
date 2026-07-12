@@ -25,7 +25,8 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "start": "node --experimental-strip-types src/server.ts"
   },
   "dependencies": {
     "@gh-top-languages/lib": "^1.2.1"
