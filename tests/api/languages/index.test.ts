@@ -87,7 +87,7 @@ describe("handler", () => {
 
     await handler(req, res);
 
-    expect(renderError).toHaveBeenCalledWith("GitHub API error", 600, 400, mockTheme);
+    expect(renderError).toHaveBeenCalledWith("GitHub API error", 400, 300);
     expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "image/svg+xml");
     expect(res.setHeader).toHaveBeenCalledWith("Cache-Control", "no-store");
     expect(res.setHeader).toHaveBeenCalledWith("X-Chart-Error", "true");
@@ -105,7 +105,7 @@ describe("handler", () => {
 
     await handler(req, res);
 
-    expect(renderError).toHaveBeenCalledWith("No language data available", 600, 400, mockTheme);
+    expect(renderError).toHaveBeenCalledWith("No language data available", 400, 300);
     expect(res.setHeader).toHaveBeenCalledWith("Cache-Control", "no-store");
     expect(res.setHeader).toHaveBeenCalledWith("X-Chart-Error", "true");
     expect(res.status).toHaveBeenCalledWith(200);
@@ -118,7 +118,7 @@ describe("handler", () => {
 
     await handler(req, res);
 
-    expect(renderError).toHaveBeenCalledWith("test error", 600, 400, mockTheme);
+    expect(renderError).toHaveBeenCalledWith("test error", 400, 300);
     expect(res.status).toHaveBeenCalledWith(200);
   });
 });

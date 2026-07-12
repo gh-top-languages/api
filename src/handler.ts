@@ -1,3 +1,4 @@
+import { DEFAULT_CONFIG                         } from "@gh-top-languages/lib/constants/config.js";
 import { parseQueryParams, type QueryParams     } from "@gh-top-languages/lib/utils/params.js";
 import { sanitize                               } from "@gh-top-languages/lib/utils/sanitize.js";
 import { generateChartData                      } from "@gh-top-languages/lib/charts/generate.js";
@@ -21,14 +22,14 @@ export async function handleLanguages(rawQuery: RawQuery): Promise<ChartResponse
     Object.entries(rawQuery).map(([k, v]) => [k, first(v)])
   );
 
-  const {
-    chartType, chartTitle,
-    width, height, count,
-    selectedTheme, gapType, stroke
-  } = parseQueryParams(query);
-
-  const errorTest = sanitize(query["error"] ?? "");
   try {
+    const {
+      chartType, chartTitle,
+      width, height, count,
+      selectedTheme, gapType, stroke
+    } = parseQueryParams(query);
+
+    const errorTest = sanitize(query["error"] ?? "");
     if (errorTest) throw new Error(errorTest);
 
     const rawData        = await fetchLanguageData(query["test"] === "true");
@@ -52,7 +53,7 @@ export async function handleLanguages(rawQuery: RawQuery): Promise<ChartResponse
         "Cache-Control": "no-store",
         "X-Chart-Error": "true"
       },
-      body: renderError((error as Error).message, width, height, selectedTheme)
+      body: renderError((error as Error).message, DEFAULT_CONFIG.WIDTH, DEFAULT_CONFIG.HEIGHT)
     };
   }
 }
