@@ -10,7 +10,7 @@ export function queryFromUrl(url: URL): RawQuery {
 
 export function startServer(port: number): Server {
   return createServer(async (req, res) => {
-    const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
+    const url = new URL(req.url ?? "/", "http://localhost");
 
     if (url.pathname !== "/api/languages") {
       res.writeHead(404, { "Content-Type": "text/plain" });
