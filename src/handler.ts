@@ -3,7 +3,7 @@ import { sanitize                               } from "@gh-top-languages/lib/ut
 import { generateChartData                      } from "@gh-top-languages/lib/charts/generate.js";
 import { renderSvg                              } from "@gh-top-languages/lib/render/svg.js";
 import { renderError                            } from "@gh-top-languages/lib/render/error.js";
-import { fetchLanguageData, processLanguageData } from "./services/github.js";
+import { fetchLanguageData, processLanguageData } from "./github.js";
 
 export type ChartResponse = {
   status:  number;

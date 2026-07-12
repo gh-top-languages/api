@@ -73,7 +73,7 @@ async function fetchAllRepos(url: string, token?: string): Promise<Repo[]> {
 
 export async function fetchLanguageData(useTestData = false): Promise<LanguageBytes> {
   if (useTestData) {
-    const testData = await import ("../data/test-data.json", { with: { type: "json" } });
+    const testData = await import ("./test-data.json", { with: { type: "json" } });
     return testData.default;
   }
 
