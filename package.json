@@ -30,7 +30,7 @@
     "start": "npm run build && node --env-file-if-exists=.env dist/server.js"
   },
   "dependencies": {
-    "@gh-top-languages/lib": "^1.2.1"
+    "@gh-top-languages/lib": "^1.2.3"
   },
   "devDependencies": {
     "@types/node": "^25.3.1",
@@ -44,6 +44,7 @@
     "smol-toml": "1.6.1",
     "ajv": "8.18.0",
     "path-to-regexp": "6.3.0",
-    "undici": "6.24.0"
+    "undici": "6.27.0",
+    "esbuild": "0.25.0"
   }
 }

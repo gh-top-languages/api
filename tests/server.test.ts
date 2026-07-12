@@ -36,4 +36,11 @@ describe("node http server", () => {
     expect(body).toContain('fill="#ff0000"');
     expect(body).not.toContain('fill="#00ff00"');
   });
+
+  it("renders error param escaped exactly once", async () => {
+    const res = await fetch(`${base}/api/languages?error=${encodeURIComponent('<b>"hi"')}`);
+    const body = await res.text();
+    expect(body).toContain("&lt;b&gt;&quot;hi&quot;");
+    expect(body).not.toContain("&amp;lt;");
+  });
 });

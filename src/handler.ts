@@ -1,6 +1,5 @@
 import { DEFAULT_CONFIG                         } from "@gh-top-languages/lib/constants/config.js";
 import { parseQueryParams, type QueryParams     } from "@gh-top-languages/lib/utils/params.js";
-import { sanitize                               } from "@gh-top-languages/lib/utils/sanitize.js";
 import { generateChartData                      } from "@gh-top-languages/lib/charts/generate.js";
 import { renderSvg                              } from "@gh-top-languages/lib/render/svg.js";
 import { renderError                            } from "@gh-top-languages/lib/render/error.js";
@@ -29,7 +28,7 @@ export async function handleLanguages(rawQuery: RawQuery): Promise<ChartResponse
       selectedTheme, gapType, stroke
     } = parseQueryParams(query);
 
-    const errorTest = sanitize(query["error"] ?? "");
+    const errorTest = query["error"] ?? "";
     if (errorTest) throw new Error(errorTest);
 
     const rawData        = await fetchLanguageData(query["test"] === "true");
