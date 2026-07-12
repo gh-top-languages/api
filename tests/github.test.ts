@@ -87,6 +87,28 @@ describe("fetchLanguageData", () => {
     );
   });
 
+  it("ignores repos by owner/name to scope across sources", async () => {
+    vi.unstubAllEnvs();
+    vi.stubEnv("GITHUB_USERNAMES", `["testuser"]`);
+    vi.stubEnv("IGNORED_REPOS", "otheruser/blog");
+
+    const scopedRepos = [
+      { name: "blog", fork: false, full_name: "testuser/blog" },
+      { name: "notes", fork: false, full_name: "testuser/notes" }
+    ];
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(scopedRepos))
+      .mockResolvedValueOnce(mockResponse(languages))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/repos/testuser/blog/languages", {}
+    );
+  });
+
   it("aggregates language bytes across repos", async () => {
     const repos = [
       { name: "repo1", fork: false, full_name: "user/repo1" },

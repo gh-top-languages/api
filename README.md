@@ -95,7 +95,7 @@ npm install
 Copy `.env.example` to `.env`, and update the variables.
 - `GITHUB_USERNAMES`: GitHub usernames to fetch repositories from. Accepts a single value (`masonlet`), comma-separated (`masonlet,secondlet`), or a JSON array with optional per-user tokens (`["masonlet", {"name": "other", "token": "github_pat_..."}]`).
 - `GITHUB_ORGS`: GitHub organization names to fetch repositories from. Accepts a single value (`gh-top-languages`), comma-separated (`gh-top-languages,starweb-libs`), or a JSON array with optional per-org tokens (`["gh-top-languages", {"name": "starweb-libs", "token": "github_pat_..."}]`)
-- `IGNORED_REPOS`: Optional comma-separated repo names to exclude from the chart.
+- `IGNORED_REPOS`: Optional comma-separated repo names to exclude from the chart. Accepts a bare name (`repo`, excluded from all sources) or `owner/name` (`org/repo`, scoped to one source).
 
 ### Running Locally
 Your endpoint will be available at http://localhost:3000/api/languages (or your configured PORT)
@@ -121,7 +121,7 @@ npm start
 
 Or, deploy with Vercel:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/gh-top-languages/api&env=GITHUB_USERNAMES,GITHUB_ORGS,IGNORED_REPOS&envDescription=GITHUB_USERNAMES%20and%2For%20GITHUB_ORGS%3A%20GitHub%20users%2Forgs%20to%20fetch%20repos%20from.%20IGNORED_REPOS%3A%20optional%20comma-separated%20repo%20names%20to%20exclude.&envLink=https%3A%2F%2Fgithub.com%2Fgh-top-languages%2Fapi%23configuration)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/gh-top-languages/api&env=GITHUB_USERNAMES,GITHUB_ORGS,IGNORED_REPOS&envDescription=GITHUB_USERNAMES%20and%2For%20GITHUB_ORGS%3A%20GitHub%20users%2Forgs%20to%20fetch%20repos%20from.%20IGNORED_REPOS%3A%20optional%20comma-separated%20repo%20names%20to%20exclude%20%28bare%20name%20or%20owner%2Fname%29.&envLink=https%3A%2F%2Fgithub.com%2Fgh-top-languages%2Fapi%23configuration)
 
 ## Error Responses
 

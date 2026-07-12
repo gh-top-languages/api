@@ -109,10 +109,10 @@ export async function fetchLanguageData(useTestData = false): Promise<LanguageBy
     )
   ]);
 
-  const ignored = process.env["IGNORED_REPOS"]?.split(',').map(name => name.trim()) || [];
+  const ignored = process.env["IGNORED_REPOS"]?.split(',').map(s => s.trim()) || [];
 
   const languageFetches = repoGroups.flatMap(({ token, repos }) =>
-    repos.filter(repo => !repo.fork && !ignored.includes(repo.name)).map(repo =>
+    repos.filter(repo => !repo.fork && !ignored.includes(repo.name) && !ignored.includes(repo.full_name)).map(repo =>
       fetch(`https://api.github.com/repos/${repo.full_name.split('/').map(encodeURIComponent).join('/')}/languages`, makeOptions(token))
         .then(r => r.ok ? (r.json() as Promise<LanguageBytes>) : ({} as LanguageBytes))
         .catch(() => { hadFetchFailure = true; return {} as LanguageBytes; })
