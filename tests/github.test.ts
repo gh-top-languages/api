@@ -51,6 +51,12 @@ describe("fetchLanguageData", () => {
     await expect(fetchLanguageData()).rejects.toThrow("At least one of GITHUB_USERNAMES or GITHUB_ORGS must be set");
   });
 
+  it("propagates a rejection to all concurrent callers", async () => {
+    vi.unstubAllEnvs();
+    await expect(Promise.all([fetchLanguageData(), fetchLanguageData()]))
+      .rejects.toThrow("At least one of GITHUB_USERNAMES or GITHUB_ORGS must be set");
+  });
+
   it("handles missing IGNORED_REPOS env variable", async () => {
     vi.unstubAllEnvs();
     vi.stubEnv("GITHUB_USERNAMES", `["testuser"]`);
@@ -84,6 +90,28 @@ describe("fetchLanguageData", () => {
     );
     expect(global.fetch).not.toHaveBeenCalledWith(
       "https://api.github.com/repos/user/ignored-repo/languages", {}
+    );
+  });
+
+  it("ignores repos by owner/name to scope across sources", async () => {
+    vi.unstubAllEnvs();
+    vi.stubEnv("GITHUB_USERNAMES", `["testuser"]`);
+    vi.stubEnv("IGNORED_REPOS", "otheruser/blog");
+
+    const scopedRepos = [
+      { name: "blog", fork: false, full_name: "testuser/blog" },
+      { name: "notes", fork: false, full_name: "testuser/notes" }
+    ];
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(scopedRepos))
+      .mockResolvedValueOnce(mockResponse(languages))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/repos/testuser/blog/languages", {}
     );
   });
 
@@ -129,6 +157,20 @@ describe("fetchLanguageData", () => {
     expect(global.fetch).toHaveBeenCalledTimes(2);
   });
 
+  it("coalesces concurrent calls into a single fetch", async () => {
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    const [result1, result2] = await Promise.all([
+      fetchLanguageData(),
+      fetchLanguageData()
+    ]);
+
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(result1).toBe(result2);
+  });
+
   it("handles failed language fetch gracefully", async () => {
     const repos = [
       { name: "repo1", fork: false, full_name: "user/repo1" },
@@ -137,11 +179,66 @@ describe("fetchLanguageData", () => {
 
     mockFetch()
       .mockResolvedValueOnce(mockResponse(repos))
-      .mockResolvedValueOnce(mockErrorResponse(403)) // Failed language fetch
+      .mockResolvedValueOnce(mockErrorResponse(403))
       .mockResolvedValueOnce(mockResponse({ Python: 500 }));
 
     const result = await fetchLanguageData();
     expect(result).toEqual({ Python: 500 });
+  });
+
+  it("does not cache a cold-start total failure and retries on next call", async () => {
+    mockFetch().mockResolvedValueOnce(mockErrorResponse(500, "Internal Server Error"));
+    await fetchLanguageData();
+
+    mockFetch().mockResolvedValueOnce(mockResponse([repos[0]])).mockResolvedValueOnce(mockResponse(languages));
+    const result = await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledTimes(3);
+    expect(result).toEqual(languages);
+  });
+
+  it("does not cache a partial failure as complete and retries on next call", async () => {
+    const twoRepos = [
+      { name: "repo1", fork: false, full_name: "user/repo1" },
+      { name: "repo2", fork: false, full_name: "user/repo2" }
+    ];
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(twoRepos))
+      .mockRejectedValueOnce(new Error("Network error"))
+      .mockResolvedValueOnce(mockResponse({ Python: 500 }));
+    await fetchLanguageData();
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(twoRepos))
+      .mockResolvedValueOnce(mockResponse({ JavaScript: 1000 }))
+      .mockResolvedValueOnce(mockResponse({ Python: 500 }));
+    const result = await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledTimes(6);
+    expect(result).toEqual({ JavaScript: 1000, Python: 500 });
+  });
+
+  it("treats a non-ok language-fetch response as a failure, skipping the cache", async () => {
+    const twoRepos = [
+      { name: "repo1", fork: false, full_name: "user/repo1" },
+      { name: "repo2", fork: false, full_name: "user/repo2" }
+    ];
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(twoRepos))
+      .mockResolvedValueOnce(mockErrorResponse(500))
+      .mockResolvedValueOnce(mockResponse({ Python: 500 }));
+    await fetchLanguageData();
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(twoRepos))
+      .mockResolvedValueOnce(mockResponse({ JavaScript: 1000 }))
+      .mockResolvedValueOnce(mockResponse({ Python: 500 }));
+    const result = await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledTimes(6);
+    expect(result).toEqual({ JavaScript: 1000, Python: 500 });
   });
 
   it("fetches from organizations", async () => {
