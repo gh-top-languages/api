@@ -10,17 +10,22 @@ export function queryFromUrl(url: URL): RawQuery {
 
 export function startServer(port: number): Server {
   return createServer(async (req, res) => {
-    const url = new URL(req.url ?? "/", "http://localhost");
+    try {
+      const url = new URL(req.url ?? "/", "http://localhost");
 
-    if (url.pathname !== "/api/languages") {
-      res.writeHead(404, { "Content-Type": "text/plain" });
-      res.end("Not Found");
-      return;
+      if (url.pathname !== "/api/languages") {
+        res.writeHead(404, { "Content-Type": "text/plain" });
+        res.end("Not Found");
+        return;
+      }
+
+      const { status, headers, body } = await handleLanguages(queryFromUrl(url));
+      res.writeHead(status, headers);
+      res.end(body);
+    } catch {
+      if (!res.headersSent) res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end("Bad Request");
     }
-
-    const { status, headers, body } = await handleLanguages(queryFromUrl(url));
-    res.writeHead(status, headers);
-    res.end(body);
   }).listen(port);
 }
 
