@@ -44,7 +44,7 @@ Deployable **GitHub language chart generator** — embeddable SVGs for READMEs a
     - **Theming**: Supports `default`, `light`, and `dark` themes.
     - **Custom Colours**: Set background (`bg`), text (`text`), and individual language colours (`c1`-`c16`) via query parameters. 
 - **Dynamic Layout:** The legend automatically shifts to a **two-column layout** when displaying 9 or more languages.
-- Automatically fetches all public GitHub repositories. Organization sources with a token also include private repos visible to that token.
+- Automatically fetches all public GitHub repositories. Users or organization sources with a token include private repos exposed to that token.
 - Ignores forks and optionally specific repositories (`IGNORED_REPOS`).
 - Uses **hourly caching** to reduce API calls and improve performance.
 

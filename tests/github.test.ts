@@ -304,7 +304,7 @@ describe("fetchLanguageData", () => {
     await fetchLanguageData();
 
     expect(global.fetch).toHaveBeenCalledWith(
-      "https://api.github.com/users/testuser/repos?per_page=100",
+      "https://api.github.com/user/repos?per_page=100&visibility=all&affiliation=owner",
       { headers: { Authorization: "Bearer test-token" } }
     );
     expect(global.fetch).toHaveBeenCalledWith(
