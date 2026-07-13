@@ -36,6 +36,7 @@ export function resetCache(): void {
 }
 
 async function fetchAndAggregate(now: number): Promise<LanguageBytes> {
+  const globalToken = process.env["GITHUB_TOKEN"]?.trim() || undefined;
   const usernames = parseSources(process.env["GITHUB_USERNAMES"]);
   const orgs      = parseSources(process.env["GITHUB_ORGS"]);
 
@@ -48,33 +49,37 @@ async function fetchAndAggregate(now: number): Promise<LanguageBytes> {
 
   let hadFetchFailure = false;
   const repoGroups = await Promise.all([
-    ...usernames.map(u =>
-      fetchAllRepos(
-        u.token ? `https://api.github.com/user/repos?per_page=100&visibility=all&affiliation=owner`
-                : `https://api.github.com/users/${encodeURIComponent(u.name)}/repos?per_page=100`,
-        noteReset,
-        u.token
-      )
-      .then(repos => ({ token: u.token, repos }))
-      .catch(() => {
+    ...usernames.map(async u => {
+      const token = u.token ?? globalToken;
+      try {
+        const repos = await fetchAllRepos(
+          u.token ? `https://api.github.com/user/repos?per_page=100&visibility=all&affiliation=owner`
+                  : `https://api.github.com/users/${encodeURIComponent(u.name)}/repos?per_page=100`,
+          noteReset,
+          token
+        );
+        return { token, repos };
+      } catch {
         hadFetchFailure = true;
         console.error(`Skipping user "${u.name}": failed to fetch repositories.`);
-        return { token: u.token, repos: [] as Repo[] };
-      })
-    ),
-    ...orgs.map(o =>
-      fetchAllRepos(
-        `https://api.github.com/orgs/${encodeURIComponent(o.name)}/repos?per_page=100`,
-        noteReset,
-        o.token
-      )
-      .then(repos => ({ token: o.token, repos }))
-      .catch(() => {
+        return { token, repos: [] as Repo[] };
+      }
+    }),
+    ...orgs.map(async o => {
+      const token = o.token ?? globalToken;
+      try {
+        const repos = await fetchAllRepos(
+          `https://api.github.com/orgs/${encodeURIComponent(o.name)}/repos?per_page=100`,
+          noteReset,
+          token
+        );
+        return { token, repos };
+      } catch {
         hadFetchFailure = true;
         console.error(`Skipping org "${o.name}": failed to fetch repositories.`);
-        return { token: o.token, repos: [] as Repo[] };
-      })
-    )
+        return { token, repos: [] as Repo[] };
+      }
+    })
   ]);
 
   const ignored = process.env["IGNORED_REPOS"]?.split(',').map(s => s.trim()) || [];

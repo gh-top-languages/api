@@ -28,6 +28,7 @@ const mockErrorResponse = (status: number, statusText = "", headers: Record<stri
 
 describe("fetchLanguageData", () => {
   beforeEach(() => {
+    vi.stubEnv("GITHUB_TOKEN", "");
     vi.stubEnv("GITHUB_USERNAMES", `["testuser"]`);
     vi.stubEnv("IGNORED_REPOS", "ignored-repo");
     global.fetch = vi.fn();
@@ -465,5 +466,54 @@ describe("fetchLanguageData", () => {
       .mockResolvedValueOnce(mockResponse([repos[0]]))
       .mockResolvedValueOnce(mockResponse({ Go: 100 }));
     expect(await fetchLanguageData()).toEqual({ Go: 100 });
+  });
+
+  it("applies global GITHUB_TOKEN to token-less sources without switching URL", async () => {
+    vi.stubEnv("GITHUB_TOKEN", "global-token");
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/users/testuser/repos?per_page=100",
+      { headers: { Authorization: "Bearer global-token" } }
+    );
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/repos/user/repo1/languages",
+      { headers: { Authorization: "Bearer global-token" } }
+    );
+  });
+
+  it("prefers per-source token over global GITHUB_TOKEN", async () => {
+    vi.stubEnv("GITHUB_TOKEN", "global-token");
+    vi.stubEnv("GITHUB_USERNAMES", '[{"name": "testuser", "token": "per-source"}]');
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/user/repos?per_page=100&visibility=all&affiliation=owner",
+      { headers: { Authorization: "Bearer per-source" } }
+    );
+  });
+
+  it("treats whitespace-only GITHUB_TOKEN as unset", async () => {
+    vi.stubEnv("GITHUB_TOKEN", "   ");
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://api.github.com/users/testuser/repos?per_page=100", {}
+    );
   });
 });
