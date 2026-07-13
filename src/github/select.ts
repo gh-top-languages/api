@@ -6,6 +6,8 @@ export type Mode =
 const MAX_OPEN_SOURCES = 10;
 const VALID_LOGIN = /^[a-zA-Z0-9](?:-?[a-zA-Z0-9]){0,38}$/;
 
+export class SelectionError extends Error {}
+
 export function detectMode(env: NodeJS.ProcessEnv): Mode {
   const personal = !!(env["GITHUB_USERNAMES"]?.trim() || env["GITHUB_ORGS"]?.trim());
   const allowed  = env["GITHUB_ALLOWED_SOURCES"]?.trim();
@@ -34,23 +36,23 @@ export function resolveSources(param: string | undefined, mode: Mode): string[] 
   const names = param?.split(',').map(s => s.trim()).filter(Boolean) ?? [];
 
   if (names.length === 0) {
-    if (mode.mode === "open") throw new Error("This instance requires ?source=<name>[,<name>...]");
+    if (mode.mode === "open") throw new SelectionError("This instance requires ?source=<name>[,<name>...]");
     return null;
   }
 
-  if (mode.mode === "personal") throw new Error("Source selection is not enabled on this instance");
+  if (mode.mode === "personal") throw new SelectionError("Source selection is not enabled on this instance");
 
   if (mode.mode === "open") {
-    if (names.length > MAX_OPEN_SOURCES) throw new Error(
+    if (names.length > MAX_OPEN_SOURCES) throw new SelectionError(
       `Too many sources: at most ${MAX_OPEN_SOURCES} per request`
     );
-    for (const name of names) if (!VALID_LOGIN.test(name)) throw new Error("Invalid source name");
+    for (const name of names) if (!VALID_LOGIN.test(name)) throw new SelectionError("Invalid source name");
     return names;
   }
 
   return names.map(n => {
     const hit = mode.allowed.find(a => a.toLowerCase() === n.toLowerCase());
-    if (!hit) throw new Error("Unknown or disallowed source");
+    if (!hit) throw new SelectionError("Unknown or disallowed source");
     return hit;
   });
 }

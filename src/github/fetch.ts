@@ -11,6 +11,11 @@ export class SourceNotFoundError extends Error {
 
 const cache = new Map<string, CacheEntry>();
 
+export async function fetchSelectedSources(names: string[], strict: boolean): Promise<LanguageBytes> {
+  const results = await Promise.all(names.map(n => fetchSource("user", { name: n }, strict)));
+  return mergeLanguages(results);
+}
+
 export async function fetchLanguageData(useTestData = false): Promise<LanguageBytes> {
   if (useTestData) {
     const testData = await import ("../test-data.json", { with: { type: "json" } });
