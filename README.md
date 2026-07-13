@@ -46,7 +46,7 @@ Deployable **GitHub language chart generator** — embeddable SVGs for READMEs a
 - **Dynamic Layout:** The legend automatically shifts to a **two-column layout** when displaying 9 or more languages.
 - Automatically fetches all public GitHub repositories. Users or organization sources with a token include private repos exposed to that token.
 - Ignores forks and optionally specific repositories (`IGNORED_REPOS`).
-- Uses **hourly caching** to reduce API calls and improve performance.
+- Uses **hourly caching** to reduce API calls and improve performance. On fetch failure the last good chart is served and refresh retries after 5 minutes, or when GitHub rate-limits the real reset time.
 
 ## Customize Your Charts
 Prefer a visual workflow? Use the [@gh-top-languages/builder](https://github.com/gh-top-languages/builder) to preview themes, colours, and layout options interactively, then easily copy the generated embed URL to quickly deploy.
@@ -132,6 +132,7 @@ Common error messages:
 - `GITHUB_USERNAMES/GITHUB_ORGS must be a valid JSON array. Check your configuration.` — malformed JSON array in env config
 - `GitHub API error: {status} {statusText}` — GitHub API request failed
 - `No language data available` — no public repositories found
+- Rate limiting (`403`/`429` with exhausted quota) is detected separately and logged as `GitHub rate limit exceeded; resets at HH:MM:SS`; the cached chart is served until the reset.
 
 ## License
 MIT License - see [LICENSE](./LICENSE) for details.

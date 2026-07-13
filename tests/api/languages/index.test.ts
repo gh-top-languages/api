@@ -6,13 +6,15 @@ import { generateChartData                      } from "@gh-top-languages/lib/ch
 import { renderSvg                              } from "@gh-top-languages/lib/render/svg.js";
 import { renderError                            } from "@gh-top-languages/lib/render/error.js";
 import   handler                                  from "../../../api/languages/index.js";
-import { fetchLanguageData, processLanguageData } from "../../../src/github.js";
+import { fetchLanguageData                      } from "../../../src/github/fetch.js";
+import { processLanguageData                    } from "../../../src/github/process.js";
 
 vi.mock("@gh-top-languages/lib/utils/params.js");
 vi.mock("@gh-top-languages/lib/charts/generate.js");
 vi.mock("@gh-top-languages/lib/render/svg.js");
 vi.mock("@gh-top-languages/lib/render/error.js");
-vi.mock("../../../src/github.js");
+vi.mock("../../../src/github/fetch.js");
+vi.mock("../../../src/github/process.js");
 
 describe("handler", () => {
   let req: VercelRequest;

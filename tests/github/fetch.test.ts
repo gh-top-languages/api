@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach    } from "vitest";
-import { fetchLanguageData, processLanguageData, resetCache } from "../src/github.js";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { fetchLanguageData, resetCache                   } from "../../src/github/fetch.js";
 
 const repos = [
   { name: "repo1",        fork: false, full_name: "user/repo1"        },
@@ -21,9 +21,10 @@ const mockResponse = (data: unknown, link: string | null = null) => ({
   headers: { get: (h: string) => h === "Link" ? link : null }
 }) as unknown as Response;
 
-const mockErrorResponse = (status: number, statusText = "") => (
-  { ok: false, status, statusText }
-) as unknown as Response;
+const mockErrorResponse = (status: number, statusText = "", headers: Record<string, string> = {}) => ({
+  ok: false, status, statusText,
+  headers: { get: (h: string) => headers[h] ?? null }
+}) as unknown as Response;
 
 describe("fetchLanguageData", () => {
   beforeEach(() => {
@@ -435,45 +436,34 @@ describe("fetchLanguageData", () => {
 
     vi.restoreAllMocks();
   });
-});
 
-describe("processLanguageData", () => {
-  it("calculates percentages correctly", () => {
-    const data = { JavaScript: 5000, Python: 3000, HTML: 2000 };
-    const result = processLanguageData(data, 3);
-    expect(result).toHaveLength(3);
-    expect(result[0]).toEqual({ lang: "JavaScript", pct: 50 });
-    expect(result[1]).toEqual({ lang: "Python", pct: 30 });
-    expect(result[2]).toEqual({ lang: "HTML", pct: 20 });
-  });
+  it("backs off until the rate-limit reset time when limited", async () => {
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+    await fetchLanguageData();
 
-  it("sorts by percentage descending", () => {
-    const data = { HTML: 1000, JavaScript: 5000, Python: 3000 };
-    const result = processLanguageData(data, 3);
+    const base = Date.now() + 1000 * 60 * 61;
+    const resetSec = Math.floor(base / 1000) + 30 * 60;
+    vi.spyOn(Date, 'now').mockReturnValue(base);
 
-    expect(result.map(l => l.lang)).toEqual(["JavaScript", "Python", "HTML"]);
-  });
+    mockFetch().mockResolvedValueOnce(mockErrorResponse(403, "Forbidden", {
+      "X-RateLimit-Remaining": "0",
+      "X-RateLimit-Reset": String(resetSec)
+    }));
+    const stale = await fetchLanguageData();
+    expect(stale).toEqual(languages);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("rate limit exceeded"));
 
-  it("limits to count", () => {
-    const data = { JavaScript: 5000, Python: 3000, HTML: 2000, CSS: 1000 };
-    const result = processLanguageData(data, 2);
+    vi.mocked(Date.now).mockReturnValue(base + 10 * 60 * 1000);
+    const calls = mockFetch().mock.calls.length;
+    await fetchLanguageData();
+    expect(mockFetch().mock.calls.length).toBe(calls);
 
-    expect(result).toHaveLength(2);
-    expect(result.map(l => l.lang)).toEqual(["JavaScript", "Python"]);
-  });
-
-  it("does not renormalize percentages after slicing", () => {
-    const data = { JavaScript: 5000, Python: 3000, HTML: 2000 };
-    const result = processLanguageData(data, 2);
-
-    expect(result[0]).toEqual({ lang: "JavaScript", pct: 50 });
-    expect(result[1]).toEqual({ lang: "Python", pct: 30 });
-
-    const totalPct = result.reduce((sum, l) => sum + l.pct, 0);
-    expect(totalPct).toBeCloseTo(80);
-  });
-
-  it("throws when no language data", () => {
-    expect(() => processLanguageData({}, 5)).toThrow("No language data available");
+    vi.mocked(Date.now).mockReturnValue(resetSec * 1000 + 1000);
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse({ Go: 100 }));
+    expect(await fetchLanguageData()).toEqual({ Go: 100 });
   });
 });

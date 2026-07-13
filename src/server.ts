@@ -1,5 +1,5 @@
-import { createServer, type Server } from "node:http";
-import { pathToFileURL             } from "node:url";
+import { createServer, type Server      } from "node:http";
+import { pathToFileURL                  } from "node:url";
 import { handleLanguages, type RawQuery } from "./handler.js";
 
 export function queryFromUrl(url: URL): RawQuery {
