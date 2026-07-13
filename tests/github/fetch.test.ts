@@ -436,4 +436,34 @@ describe("fetchLanguageData", () => {
 
     vi.restoreAllMocks();
   });
+
+  it("backs off until the rate-limit reset time when limited", async () => {
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse(languages));
+    await fetchLanguageData();
+
+    const base = Date.now() + 1000 * 60 * 61;
+    const resetSec = Math.floor(base / 1000) + 30 * 60;
+    vi.spyOn(Date, 'now').mockReturnValue(base);
+
+    mockFetch().mockResolvedValueOnce(mockErrorResponse(403, "Forbidden", {
+      "X-RateLimit-Remaining": "0",
+      "X-RateLimit-Reset": String(resetSec)
+    }));
+    const stale = await fetchLanguageData();
+    expect(stale).toEqual(languages);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("rate limit exceeded"));
+
+    vi.mocked(Date.now).mockReturnValue(base + 10 * 60 * 1000);
+    const calls = mockFetch().mock.calls.length;
+    await fetchLanguageData();
+    expect(mockFetch().mock.calls.length).toBe(calls);
+
+    vi.mocked(Date.now).mockReturnValue(resetSec * 1000 + 1000);
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse([repos[0]]))
+      .mockResolvedValueOnce(mockResponse({ Go: 100 }));
+    expect(await fetchLanguageData()).toEqual({ Go: 100 });
+  });
 });
