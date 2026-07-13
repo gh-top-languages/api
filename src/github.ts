@@ -1,6 +1,7 @@
 import type { Language } from "@gh-top-languages/lib/charts/types.js";
 
 const REFRESH_INTERVAL = 1000 * 60 * 60;
+const FALLBACK_RETRY_MS = 5 * 60 * 1000;
 
 type Repo = {
   name:      string;
@@ -164,7 +165,10 @@ async function fetchAndAggregate(now: number): Promise<LanguageBytes> {
     );
 
     if (cachedLanguageData !== null) {
-      lastRefresh = now - REFRESH_INTERVAL + (5 * 60 * 1000);
+      const retryDelay = rateLimitResetAt
+        ? Math.min(Math.max(rateLimitResetAt - now, 60_000), REFRESH_INTERVAL)
+        : FALLBACK_RETRY_MS;
+      lastRefresh = now - REFRESH_INTERVAL + retryDelay;
       return cachedLanguageData;
     }
     return result;
