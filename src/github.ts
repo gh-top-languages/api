@@ -16,6 +16,17 @@ let cachedLanguageData: LanguageBytes | null = null;
 let lastRefresh = 0;
 let inFlightFetch: Promise<LanguageBytes> | null = null;
 
+function rateLimitReset(r: Response): number | null {
+  const retryAfter = r.headers.get("Retry-After");
+  const primary = (r.status === 403 || r.status === 429)
+    && r.headers.get("X-RateLimit-Remaining") === "0";
+  if (!retryAfter && !primary) return null;
+  const resetMs = retryAfter
+    ? Date.now() + Number(retryAfter) * 1000
+    : Number(r.headers.get("X-RateLimit-Reset")) * 1000;
+  return Number.isFinite(resetMs) ? resetMs : null;
+}
+
 function parseSources(env: string | undefined): Source[] {
   if (!env) return [];
 
@@ -54,14 +65,22 @@ function parseNextLink(linkHeader: string | null): string | null {
   return match?.[1] ?? null;
 }
 
-async function fetchAllRepos(url: string, token?: string): Promise<Repo[]> {
+async function fetchAllRepos(
+  url: string,
+  onRateLimit: (resetMs: number) => void,
+  token?: string
+): Promise<Repo[]> {
   const options = makeOptions(token);
   let nextUrl: string | null = url;
   const repos: Repo[]        = [];
 
   while (nextUrl) {
     const response = await fetch(nextUrl, options);
-    if (!response.ok) throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+    if (!response.ok) {
+      const reset = rateLimitReset(response);
+      if (reset) onRateLimit(reset);
+      throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+    }
     repos.push(...(await response.json() as Repo[]));
     nextUrl = parseNextLink(response.headers.get("Link"));
     if (nextUrl && !nextUrl.startsWith("https://api.github.com/")) throw new Error(
@@ -80,12 +99,16 @@ async function fetchAndAggregate(now: number): Promise<LanguageBytes> {
     "At least one of GITHUB_USERNAMES or GITHUB_ORGS must be set"
   );
 
+  let rateLimitResetAt: number | null = null;
+  const noteReset = (ms: number) => { rateLimitResetAt = Math.max(rateLimitResetAt ?? 0, ms); };
+
   let hadFetchFailure = false;
   const repoGroups = await Promise.all([
     ...usernames.map(u =>
       fetchAllRepos(
         u.token ? `https://api.github.com/user/repos?per_page=100&visibility=all&affiliation=owner`
                 : `https://api.github.com/users/${encodeURIComponent(u.name)}/repos?per_page=100`,
+        noteReset,
         u.token
       )
       .then(repos => ({ token: u.token, repos }))
@@ -96,13 +119,17 @@ async function fetchAndAggregate(now: number): Promise<LanguageBytes> {
       })
     ),
     ...orgs.map(o =>
-      fetchAllRepos(`https://api.github.com/orgs/${encodeURIComponent(o.name)}/repos?per_page=100`, o.token)
-        .then(repos => ({ token: o.token, repos }))
-        .catch(() => {
-          hadFetchFailure = true;
-          console.error(`Skipping org "${o.name}": failed to fetch repositories.`);
-          return { token: o.token, repos: [] as Repo[] };
-        })
+      fetchAllRepos(
+        `https://api.github.com/orgs/${encodeURIComponent(o.name)}/repos?per_page=100`,
+        noteReset,
+        o.token
+      )
+      .then(repos => ({ token: o.token, repos }))
+      .catch(() => {
+        hadFetchFailure = true;
+        console.error(`Skipping org "${o.name}": failed to fetch repositories.`);
+        return { token: o.token, repos: [] as Repo[] };
+      })
     )
   ]);
 
@@ -114,6 +141,8 @@ async function fetchAndAggregate(now: number): Promise<LanguageBytes> {
         .then(r => {
           if (r.ok) return r.json() as Promise<LanguageBytes>;
           hadFetchFailure = true;
+          const reset = rateLimitReset(r);
+          if (reset) noteReset(reset);
           return {} as LanguageBytes;
         })
         .catch(() => { hadFetchFailure = true; return {} as LanguageBytes; })
@@ -130,6 +159,10 @@ async function fetchAndAggregate(now: number): Promise<LanguageBytes> {
   }, {});
 
   if (hadFetchFailure) {
+    if (rateLimitResetAt !== null) console.error(
+      `GitHub rate limit exceeded; resets at ${new Date(rateLimitResetAt).toLocaleTimeString()}`
+    );
+
     if (cachedLanguageData !== null) {
       lastRefresh = now - REFRESH_INTERVAL + (5 * 60 * 1000);
       return cachedLanguageData;
