@@ -10,6 +10,7 @@ export type SourceKind = "user" | "org";
 export type LanguageBytes = Record<string, number>;
 export type CacheEntry = {
   data:        LanguageBytes | null;
-  lastRefresh: number;
   inFlight:    Promise<LanguageBytes> | null;
+  lastRefresh: number;
+  missingUntil?: number;
 };

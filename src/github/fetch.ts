@@ -3,6 +3,11 @@ import { parseNextLink, parseSources       } from "./parse.js";
 import { FALLBACK_RETRY_MS, rateLimitReset } from "./rateLimit.js";
 
 const REFRESH_INTERVAL = 1000 * 60 * 60;
+const NEGATIVE_TTL     = 1000 * 60 * 10;
+
+export class SourceNotFoundError extends Error {
+  constructor() { super("Unknown GitHub account"); }
+}
 
 const cache = new Map<string, CacheEntry>();
 
@@ -29,20 +34,24 @@ export async function fetchLanguageData(useTestData = false): Promise<LanguageBy
 
 export function resetCache(): void { cache.clear(); }
 
-function fetchSource(kind: SourceKind, source: Source): Promise<LanguageBytes> {
+function fetchSource(kind: SourceKind, source: Source, strict = false): Promise<LanguageBytes> {
   const key = `${kind}:${source.name.toLowerCase()}`;
   let entry = cache.get(key);
   if (!entry) { entry = { data: null, lastRefresh: 0, inFlight: null }; cache.set(key, entry); }
 
   const now = Date.now();
+  if (entry.missingUntil && now < entry.missingUntil) {
+    if (strict) return Promise.reject(new SourceNotFoundError());
+    return Promise.resolve({});
+  }
   if (entry.data && now - entry.lastRefresh < REFRESH_INTERVAL) return Promise.resolve(entry.data);
   if (entry.inFlight) return entry.inFlight;
 
-  entry.inFlight = fetchOne(kind, source, entry, now).finally(() => { entry.inFlight = null; });
+  entry.inFlight = fetchOne(kind, source, entry, now, strict).finally(() => { entry.inFlight = null; });
   return entry.inFlight;
 }
 
-async function fetchOne(kind: SourceKind, source: Source, entry: CacheEntry, now: number): Promise<LanguageBytes> {
+async function fetchOne(kind: SourceKind, source: Source, entry: CacheEntry, now: number, strict: boolean): Promise<LanguageBytes> {
   const token = source.token ?? (process.env["GITHUB_TOKEN"]?.trim() || undefined);
 
   let rateLimitResetAt: number | null = null;
@@ -58,7 +67,13 @@ async function fetchOne(kind: SourceKind, source: Source, entry: CacheEntry, now
       noteReset,
       token
     );
-  } catch {
+  } catch (e) {
+    if (e instanceof SourceNotFoundError) {
+      entry.missingUntil = now + NEGATIVE_TTL;
+      entry.data = null;
+      if (strict) throw e;
+      return {};
+    }
     hadFetchFailure = true;
     console.error(`Skipping ${kind} "${source.name}": failed to fetch repositories.`);
   }
@@ -112,6 +127,7 @@ async function fetchAllRepos(
   while (nextUrl) {
     const response = await fetch(nextUrl, options);
     if (!response.ok) {
+      if (response.status === 404 && repos.length === 0) throw new SourceNotFoundError();
       const reset = rateLimitReset(response);
       if (reset) onRateLimit(reset);
       throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
