@@ -1,6 +1,6 @@
-import { parseNextLink, parseSources } from "./parse";
-import { FALLBACK_RETRY_MS, rateLimitReset } from "./rateLimit";
-import type { LanguageBytes } from "./types";
+import { parseNextLink, parseSources       } from "./parse.js";
+import { FALLBACK_RETRY_MS, rateLimitReset } from "./rateLimit.js";
+import type { LanguageBytes                } from "./types.js";
 
 
 const REFRESH_INTERVAL = 1000 * 60 * 60;

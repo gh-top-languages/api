@@ -1,5 +1,5 @@
 import type { Language      } from "@gh-top-languages/lib/charts/types.js";
-import type { LanguageBytes } from "./types";
+import type { LanguageBytes } from "./types.js";
 
 export function processLanguageData(languageBytes: LanguageBytes, count: number): Language[] {
   if (Object.keys(languageBytes).length === 0) throw new Error("No language data available");

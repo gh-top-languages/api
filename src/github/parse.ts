@@ -1,4 +1,4 @@
-import type { Source } from "./types";
+import type { Source } from "./types.js";
 
 export function parseSources(env: string | undefined): Source[] {
   if (!env) return [];
