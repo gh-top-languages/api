@@ -43,16 +43,17 @@ export function resolveSources(param: string | undefined, mode: Mode): string[] 
   if (mode.mode === "personal") throw new SelectionError("Source selection is not enabled on this instance");
 
   if (mode.mode === "open") {
-    if (names.length > MAX_OPEN_SOURCES) throw new SelectionError(
+    const unique = [...new Set(names.map(n => n.toLowerCase()))];
+    if (unique.length > MAX_OPEN_SOURCES) throw new SelectionError(
       `Too many sources: at most ${MAX_OPEN_SOURCES} per request`
     );
-    for (const name of names) if (!VALID_LOGIN.test(name)) throw new SelectionError("Invalid source name");
-    return names;
+    for (const name of unique) if (!VALID_LOGIN.test(name)) throw new SelectionError("Invalid source name");
+    return unique;
   }
 
-  return names.map(n => {
+  return [...new Set(names.map(n => {
     const hit = mode.allowed.find(a => a.toLowerCase() === n.toLowerCase());
     if (!hit) throw new SelectionError("Unknown or disallowed source");
     return hit;
-  });
+  }))];
 }
