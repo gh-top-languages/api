@@ -1,13 +1,13 @@
-import { describe, it, expect, vi, beforeEach   } from "vitest";
-import type { VercelRequest, VercelResponse     } from "@vercel/node";
-import { parseQueryParams                       } from "@gh-top-languages/lib/utils/params.js";
-import type { ChartResult                       } from "@gh-top-languages/lib/charts/types.js";
-import { generateChartData                      } from "@gh-top-languages/lib/charts/generate.js";
-import { renderSvg                              } from "@gh-top-languages/lib/render/svg.js";
-import { renderError                            } from "@gh-top-languages/lib/render/error.js";
-import   handler                                  from "../../../api/languages/index.js";
-import { fetchLanguageData                      } from "../../../src/github/fetch.js";
-import { processLanguageData                    } from "../../../src/github/process.js";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import type { VercelRequest, VercelResponse              } from "@vercel/node";
+import { parseQueryParams    } from "@gh-top-languages/lib/utils/params.js";
+import type { ChartResult    } from "@gh-top-languages/lib/charts/types.js";
+import { generateChartData   } from "@gh-top-languages/lib/charts/generate.js";
+import { renderSvg           } from "@gh-top-languages/lib/render/svg.js";
+import { renderError         } from "@gh-top-languages/lib/render/error.js";
+import   handler                from "../../../api/languages/index.js";
+import { fetchLanguageData   } from "../../../src/github/fetch.js";
+import { processLanguageData } from "../../../src/github/process.js";
 
 vi.mock("@gh-top-languages/lib/utils/params.js");
 vi.mock("@gh-top-languages/lib/charts/generate.js");
@@ -28,6 +28,7 @@ describe("handler", () => {
   } as const;
 
   beforeEach(() => {
+    vi.stubEnv("GITHUB_USERNAMES", "testuser");
     vi.clearAllMocks();
     req = { query: {} } as VercelRequest;
     res = {
@@ -50,6 +51,10 @@ describe("handler", () => {
     });
   });
 
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("renders SVG successfully with valid data", async () => {
     const rawData = { JavaScript: 5000, Python: 3000 };
     const normalizedData = [
@@ -70,7 +75,7 @@ describe("handler", () => {
 
     await handler(req, res);
 
-    expect(fetchLanguageData).toHaveBeenCalledWith(false);
+    expect(fetchLanguageData).toHaveBeenCalledWith();
     expect(processLanguageData).toHaveBeenCalledWith(rawData, 5);
     expect(generateChartData).toHaveBeenCalledWith(normalizedData, mockTheme, "donut", "gap", false);
     expect(renderSvg).toHaveBeenCalledWith(600, 400, "#ffffff", chartData, "Languages", "#000000");
