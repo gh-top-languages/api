@@ -21,10 +21,10 @@ const mockResponse = (data: unknown, link: string | null = null) => ({
   headers: { get: (h: string) => h === "Link" ? link : null }
 }) as unknown as Response;
 
-const mockErrorResponse = (status: number, statusText = "") => (
-  { ok: false, status, statusText }
-) as unknown as Response;
-
+const mockErrorResponse = (status: number, statusText = "", headers: Record<string, string> = {}) => ({
+  ok: false, status, statusText,
+  headers: { get: (h: string) => headers[h] ?? null }
+}) as unknown as Response;
 
 describe("fetchLanguageData", () => {
   beforeEach(() => {
