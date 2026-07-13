@@ -155,7 +155,7 @@ describe("fetchLanguageData", () => {
 
     const result1 = await fetchLanguageData();
     const result2 = await fetchLanguageData();
-    expect(result1).toBe(result2);
+    expect(result1).toStrictEqual(result2);
     expect(global.fetch).toHaveBeenCalledTimes(2);
   });
 
@@ -170,7 +170,7 @@ describe("fetchLanguageData", () => {
     ]);
 
     expect(global.fetch).toHaveBeenCalledTimes(2);
-    expect(result1).toBe(result2);
+    expect(result1).toStrictEqual(result2);
   });
 
   it("handles failed language fetch gracefully", async () => {

@@ -1,19 +1,10 @@
+import type { CacheEntry, LanguageBytes, Repo, Source, SourceKind } from "./types.js";
 import { parseNextLink, parseSources       } from "./parse.js";
 import { FALLBACK_RETRY_MS, rateLimitReset } from "./rateLimit.js";
-import type { LanguageBytes                } from "./types.js";
-
 
 const REFRESH_INTERVAL = 1000 * 60 * 60;
 
-let cachedLanguageData: LanguageBytes | null = null;
-let lastRefresh = 0;
-let inFlightFetch: Promise<LanguageBytes> | null = null;
-
-type Repo = {
-  name:      string;
-  fork:      boolean;
-  full_name: string;
-};
+const cache = new Map<string, CacheEntry>();
 
 export async function fetchLanguageData(useTestData = false): Promise<LanguageBytes> {
   if (useTestData) {
@@ -21,22 +12,6 @@ export async function fetchLanguageData(useTestData = false): Promise<LanguageBy
     return testData.default;
   }
 
-  const now = Date.now();
-  if (cachedLanguageData && now - lastRefresh < REFRESH_INTERVAL) return cachedLanguageData;
-
-  if (inFlightFetch) return inFlightFetch;
-  inFlightFetch = fetchAndAggregate(now).finally(() => { inFlightFetch = null; });
-  return inFlightFetch;
-}
-
-export function resetCache(): void {
-  cachedLanguageData = null;
-  lastRefresh = 0;
-  inFlightFetch = null;
-}
-
-async function fetchAndAggregate(now: number): Promise<LanguageBytes> {
-  const globalToken = process.env["GITHUB_TOKEN"]?.trim() || undefined;
   const usernames = parseSources(process.env["GITHUB_USERNAMES"]);
   const orgs      = parseSources(process.env["GITHUB_ORGS"]);
 
@@ -44,48 +19,54 @@ async function fetchAndAggregate(now: number): Promise<LanguageBytes> {
     "At least one of GITHUB_USERNAMES or GITHUB_ORGS must be set"
   );
 
+  const results = await Promise.all([
+    ...usernames.map(u => fetchSource("user", u)),
+    ...orgs.map     (o => fetchSource("org",  o))
+  ]);
+
+  return mergeLanguages(results);
+}
+
+export function resetCache(): void { cache.clear(); }
+
+function fetchSource(kind: SourceKind, source: Source): Promise<LanguageBytes> {
+  const key = `${kind}:${source.name.toLowerCase()}`;
+  let entry = cache.get(key);
+  if (!entry) { entry = { data: null, lastRefresh: 0, inFlight: null }; cache.set(key, entry); }
+
+  const now = Date.now();
+  if (entry.data && now - entry.lastRefresh < REFRESH_INTERVAL) return Promise.resolve(entry.data);
+  if (entry.inFlight) return entry.inFlight;
+
+  entry.inFlight = fetchOne(kind, source, entry, now).finally(() => { entry.inFlight = null; });
+  return entry.inFlight;
+}
+
+async function fetchOne(kind: SourceKind, source: Source, entry: CacheEntry, now: number): Promise<LanguageBytes> {
+  const token = source.token ?? (process.env["GITHUB_TOKEN"]?.trim() || undefined);
+
   let rateLimitResetAt: number | null = null;
   const noteReset = (ms: number) => { rateLimitResetAt = Math.max(rateLimitResetAt ?? 0, ms); };
-
   let hadFetchFailure = false;
-  const repoGroups = await Promise.all([
-    ...usernames.map(async u => {
-      const token = u.token ?? globalToken;
-      try {
-        const repos = await fetchAllRepos(
-          u.token ? `https://api.github.com/user/repos?per_page=100&visibility=all&affiliation=owner`
-                  : `https://api.github.com/users/${encodeURIComponent(u.name)}/repos?per_page=100`,
-          noteReset,
-          token
-        );
-        return { token, repos };
-      } catch {
-        hadFetchFailure = true;
-        console.error(`Skipping user "${u.name}": failed to fetch repositories.`);
-        return { token, repos: [] as Repo[] };
-      }
-    }),
-    ...orgs.map(async o => {
-      const token = o.token ?? globalToken;
-      try {
-        const repos = await fetchAllRepos(
-          `https://api.github.com/orgs/${encodeURIComponent(o.name)}/repos?per_page=100`,
-          noteReset,
-          token
-        );
-        return { token, repos };
-      } catch {
-        hadFetchFailure = true;
-        console.error(`Skipping org "${o.name}": failed to fetch repositories.`);
-        return { token, repos: [] as Repo[] };
-      }
-    })
-  ]);
+
+  let repos: Repo[] = [];
+  try {
+    repos = await fetchAllRepos(
+      kind === "org"    ? `https://api.github.com/orgs/${encodeURIComponent(source.name)}/repos?per_page=100`
+      : source.token    ? `https://api.github.com/user/repos?per_page=100&visibility=all&affiliation=owner`
+                        : `https://api.github.com/users/${encodeURIComponent(source.name)}/repos?per_page=100`,
+      noteReset,
+      token
+    );
+  } catch {
+    hadFetchFailure = true;
+    console.error(`Skipping ${kind} "${source.name}": failed to fetch repositories.`);
+  }
 
   const ignored = process.env["IGNORED_REPOS"]?.split(',').map(s => s.trim()) || [];
 
-  const languageFetches = repoGroups.flatMap(({ token, repos }) =>
-    repos.filter(repo => !repo.fork && !ignored.includes(repo.name) && !ignored.includes(repo.full_name)).map(repo =>
+  const langResults = await Promise.all(
+    repos.filter(r => !r.fork && !ignored.includes(r.name) && !ignored.includes(r.full_name)).map(repo =>
       fetch(`https://api.github.com/repos/${repo.full_name.split('/').map(encodeURIComponent).join('/')}/languages`, makeOptions(token))
         .then(r => {
           if (r.ok) return r.json() as Promise<LanguageBytes>;
@@ -98,32 +79,24 @@ async function fetchAndAggregate(now: number): Promise<LanguageBytes> {
     )
   );
 
-  const langResults: LanguageBytes[] = await Promise.all(languageFetches);
-
-  const result = langResults.reduce<LanguageBytes>((acc, languages) => {
-    for (const [lang, bytes] of Object.entries(languages)) {
-      acc[lang] = (acc[lang] || 0) + bytes;
-    }
-    return acc;
-  }, {});
+  const result = mergeLanguages(langResults);
 
   if (hadFetchFailure) {
     if (rateLimitResetAt !== null) console.error(
       `GitHub rate limit exceeded; resets at ${new Date(rateLimitResetAt).toLocaleTimeString()}`
     );
-
-    if (cachedLanguageData !== null) {
+    if (entry.data !== null) {
       const retryDelay = rateLimitResetAt
         ? Math.min(Math.max(rateLimitResetAt - now, 60_000), REFRESH_INTERVAL)
         : FALLBACK_RETRY_MS;
-      lastRefresh = now - REFRESH_INTERVAL + retryDelay;
-      return cachedLanguageData;
+      entry.lastRefresh = now - REFRESH_INTERVAL + retryDelay;
+      return entry.data;
     }
     return result;
   }
 
-  cachedLanguageData = result;
-  lastRefresh = now;
+  entry.data = result;
+  entry.lastRefresh = now;
   return result;
 }
 
@@ -151,6 +124,13 @@ async function fetchAllRepos(
   }
 
   return repos;
+}
+
+function mergeLanguages(all: LanguageBytes[]): LanguageBytes {
+  return all.reduce<LanguageBytes>((acc, languages) => {
+    for (const [lang, bytes] of Object.entries(languages)) acc[lang] = (acc[lang] || 0) + bytes;
+    return acc;
+  }, {});
 }
 
 function makeOptions(token?: string): RequestInit {
