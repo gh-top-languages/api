@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    uses: gh-top-languages/.github/.github/workflows/test.yml@v1.0.0
+    uses: gh-top-languages/.github/.github/workflows/test.yml@v1.1.0
 
   build:
-    uses: gh-top-languages/.github/.github/workflows/build.yml@v1.0.0
+    uses: gh-top-languages/.github/.github/workflows/build.yml@v1.1.0
