@@ -219,6 +219,28 @@ describe("fetchLanguageData", () => {
     expect(result).toEqual({ JavaScript: 1000, Python: 500 });
   });
 
+  it("treats a non-ok language-fetch response as a failure, skipping the cache", async () => {
+    const twoRepos = [
+      { name: "repo1", fork: false, full_name: "user/repo1" },
+      { name: "repo2", fork: false, full_name: "user/repo2" }
+    ];
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(twoRepos))
+      .mockResolvedValueOnce(mockErrorResponse(500))
+      .mockResolvedValueOnce(mockResponse({ Python: 500 }));
+    await fetchLanguageData();
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(twoRepos))
+      .mockResolvedValueOnce(mockResponse({ JavaScript: 1000 }))
+      .mockResolvedValueOnce(mockResponse({ Python: 500 }));
+    const result = await fetchLanguageData();
+
+    expect(global.fetch).toHaveBeenCalledTimes(6);
+    expect(result).toEqual({ JavaScript: 1000, Python: 500 });
+  });
+
   it("fetches from organizations", async () => {
     vi.unstubAllEnvs();
     vi.stubEnv("GITHUB_ORGS", `["test-org"]`);

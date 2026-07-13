@@ -107,7 +107,11 @@ async function fetchAndAggregate(now: number): Promise<LanguageBytes> {
   const languageFetches = repoGroups.flatMap(({ token, repos }) =>
     repos.filter(repo => !repo.fork && !ignored.includes(repo.name) && !ignored.includes(repo.full_name)).map(repo =>
       fetch(`https://api.github.com/repos/${repo.full_name.split('/').map(encodeURIComponent).join('/')}/languages`, makeOptions(token))
-        .then(r => r.ok ? (r.json() as Promise<LanguageBytes>) : ({} as LanguageBytes))
+        .then(r => {
+          if (r.ok) return r.json() as Promise<LanguageBytes>;
+          hadFetchFailure = true;
+          return {} as LanguageBytes;
+        })
         .catch(() => { hadFetchFailure = true; return {} as LanguageBytes; })
     )
   );
