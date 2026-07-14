@@ -1,3 +1,4 @@
+import { VALID_LOGIN } from "./constants.js";
 import type { Source } from "./types.js";
 
 export function parseSources(env: string | undefined): Source[] {
@@ -32,4 +33,13 @@ export function parseNextLink(linkHeader: string | null): string | null {
   if (!linkHeader) return null;
   const match = linkHeader.match(/<([^>]+)>;\s*rel="next"/);
   return match?.[1] ?? null;
+}
+
+export function parseNames(raw: string, context: string): string[] {
+  const names = raw.split(',').map(s => s.trim()).filter(Boolean);
+  if (names.length === 0) throw new Error(`${context} contains no valid entries`);
+  for (const name of names) if (!VALID_LOGIN.test(name)) throw new Error(
+    `${context}: "${name}" is not a valid GitHub account name`
+  );
+  return names;
 }

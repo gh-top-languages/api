@@ -1,9 +1,14 @@
-import type { CacheEntry, FetchOutcome, LanguageBytes, Repo, Source, SourceKind } from "./types.js";
+import type {
+  CacheEntry,
+  FetchOutcome,
+  LanguageBytes,
+  Repo,
+  Source,
+  SourceKind
+} from "./types.js";
+import { NEGATIVE_TTL, REFRESH_INTERVAL    } from "./constants.js";
 import { parseNextLink, parseSources       } from "./parse.js";
 import { FALLBACK_RETRY_MS, rateLimitReset } from "./rateLimit.js";
-
-const REFRESH_INTERVAL = 1000 * 60 * 60;
-const NEGATIVE_TTL     = 1000 * 60 * 10;
 
 export class SourceNotFoundError extends Error {
   constructor() { super("Unknown GitHub account"); }

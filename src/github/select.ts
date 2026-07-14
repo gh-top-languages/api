@@ -1,10 +1,10 @@
+import { MAX_OPEN_SOURCES, VALID_LOGIN } from "./constants";
+import { parseNames } from "./parse";
+
 export type Mode =
   | { mode: "personal" }
   | { mode: "enumerated"; allowed: string[] }
   | { mode: "open" };
-
-const MAX_OPEN_SOURCES = 10;
-const VALID_LOGIN = /^[a-zA-Z0-9](?:-?[a-zA-Z0-9]){0,38}$/;
 
 export class SelectionError extends Error {}
 
@@ -21,15 +21,6 @@ export function detectMode(env: NodeJS.ProcessEnv): Mode {
   if (personal)        return { mode: "personal" };
   if (allowed === "*") return { mode: "open" };
   return { mode: "enumerated", allowed: parseNames(allowed!, "GITHUB_ALLOWED_SOURCES") };
-}
-
-function parseNames(raw: string, context: string): string[] {
-  const names = raw.split(',').map(s => s.trim()).filter(Boolean);
-  if (names.length === 0) throw new Error(`${context} contains no valid entries`);
-  for (const name of names) if (!VALID_LOGIN.test(name)) throw new Error(
-    `${context}: "${name}" is not a valid GitHub account name`
-  );
-  return names;
 }
 
 export function resolveSources(param: string | undefined, mode: Mode): string[] | null {
