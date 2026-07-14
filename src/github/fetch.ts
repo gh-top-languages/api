@@ -29,9 +29,17 @@ export async function fetchLanguageData(useTestData = false): Promise<LanguageBy
     "At least one of GITHUB_USERNAMES or GITHUB_ORGS must be set"
   );
 
+  const dedupe = (sources: Source[]) => {
+    const seen = new Set<string>();
+    return sources.filter(s => {
+      const k = s.name.toLowerCase();
+      return seen.has(k) ? false : (seen.add(k), true);
+    });
+  };
+
   const results = await Promise.all([
-    ...usernames.map(u => fetchSource("user", u)),
-    ...orgs.map     (o => fetchSource("org",  o))
+    ...dedupe(usernames).map(u => fetchSource("user", u)),
+    ...dedupe(orgs).map     (o => fetchSource("org",  o))
   ]);
 
   return mergeLanguages(results);
@@ -54,6 +62,7 @@ async function fetchSource(kind: SourceKind, source: Source, strict = false): Pr
   const outcome = await (entry.inFlight ??= fetchOne(kind, source, entry, now).finally(() => { entry.inFlight = null; }));
   if (outcome.kind === "missing") {
     if (strict) throw new SourceNotFoundError();
+    console.error(`Skipping ${kind} "${source.name}": account not found.`);
     return {};
   }
   if (outcome.kind === "failed" && strict) throw new Error("GitHub API error: source fetch failed");
