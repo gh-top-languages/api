@@ -97,7 +97,7 @@ async function fetchOne(kind: SourceKind, source: Source, entry: CacheEntry, now
       return { kind: "missing" };
     }
     hadFetchFailure = true;
-    console.error(`Skipping ${kind} "${source.name}": failed to fetch repositories.`);
+    console.error(`Skipping ${kind} "${source.name}": ${(e as Error).message}`);
   }
 
   const ignored = process.env["IGNORED_REPOS"]?.split(',').map(s => s.trim()) || [];
