@@ -3,8 +3,9 @@ import { parseQueryParams, type QueryParams } from "@gh-top-languages/lib/utils/
 import { generateChartData                  } from "@gh-top-languages/lib/charts/generate.js";
 import { renderSvg                          } from "@gh-top-languages/lib/render/svg.js";
 import { renderError                        } from "@gh-top-languages/lib/render/error.js";
-import { fetchLanguageData                  } from "./github/fetch.js";
-import { processLanguageData                } from "./github/process.js";
+import { checkReferer, detectMode, resolveSources, SelectionError     } from "./github/select.js";
+import { fetchLanguageData, fetchSelectedSources, SourceNotFoundError } from "./github/fetch.js";
+import { processLanguageData                                          } from "./github/process.js";
 
 export type ChartResponse = {
   status:  number;
@@ -17,12 +18,17 @@ export type RawQuery = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined): string | undefined =>
   Array.isArray(v) ? v[0] : v;
 
-export async function handleLanguages(rawQuery: RawQuery): Promise<ChartResponse> {
+export async function handleLanguages(
+  rawQuery: RawQuery,
+  rawHeaders: RawQuery = {}
+): Promise<ChartResponse> {
   const query: QueryParams = Object.fromEntries(
     Object.entries(rawQuery).map(([k, v]) => [k, first(v)])
   );
 
   try {
+    checkReferer(first(rawHeaders["origin"]) ?? first(rawHeaders["referer"]), process.env);
+
     const {
       chartType, chartTitle,
       width, height, count,
@@ -32,7 +38,15 @@ export async function handleLanguages(rawQuery: RawQuery): Promise<ChartResponse
     const errorTest = query["error"] ?? "";
     if (errorTest) throw new Error(errorTest);
 
-    const rawData        = await fetchLanguageData(query["test"] === "true");
+    const rawData = query["test"] === "true" ? await fetchLanguageData(true)
+      : await (async () => {
+          const mode     = detectMode(process.env);
+          const selected = resolveSources(query["source"], mode);
+          return selected                ? fetchSelectedSources(selected,     true )
+            : mode.mode === "enumerated" ? fetchSelectedSources(mode.allowed, false)
+            :                              fetchLanguageData();
+        })();
+
     const normalizedData = processLanguageData(rawData, count);
     const chart          = generateChartData(normalizedData, selectedTheme, chartType, gapType, stroke);
     const svg            = renderSvg(width, height, selectedTheme.bg, chart, chartTitle, selectedTheme.text);
@@ -46,11 +60,12 @@ export async function handleLanguages(rawQuery: RawQuery): Promise<ChartResponse
     };
   } catch (error) {
     console.error("[api/languages]", error);
+    const requestShaped = error instanceof SelectionError || error instanceof SourceNotFoundError;
     return {
       status: 200, // Return 200 so error SVGs render in GitHub README <img> embeds (camo proxy drops non-200 bodies)
       headers: {
         "Content-Type":  "image/svg+xml",
-        "Cache-Control": "no-store",
+        "Cache-Control": requestShaped ? "public, max-age=300" : "no-store",
         "X-Chart-Error": "true"
       },
       body: renderError((error as Error).message, DEFAULT_CONFIG.WIDTH, DEFAULT_CONFIG.HEIGHT)
