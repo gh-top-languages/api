@@ -48,6 +48,8 @@ describe("resolveSources", () => {
   it("one bad among good fails the whole request",
     () => expect(() => resolveSources("Mason,stranger", enumerated)).toThrow(/Unknown or disallowed/));
 
+  it("enumerated mode dedupes to one canonical entry", () => expect(resolveSources("Mason,MASON", enumerated)).toEqual(["Mason"]));
+  it("open mode dedupes case-variant names", () => expect(resolveSources("Mason,mason,MASON", open)).toEqual(["mason"]));
   it("open passes valid names through",       () =>
     expect(resolveSources("a,b-c", open)).toEqual(["a", "b-c"]));
   it("open rejects more than 10 names",       () =>

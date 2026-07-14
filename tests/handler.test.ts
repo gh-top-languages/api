@@ -64,7 +64,7 @@ describe("source selection", () => {
     const res = await handleLanguages({ source: "stranger" });
     expect(res.headers["X-Chart-Error"]).toBe("true");
     expect(res.headers["Cache-Control"]).toBe("public, max-age=300");
-    expect(res.body).not.toContain("stranger"); // input never echoed into the SVG
+    expect(res.body).not.toContain("stranger");
   });
 
   it("open bare URL renders a cacheable error SVG", async () => {
@@ -95,5 +95,13 @@ describe("source selection", () => {
     const res = await handleLanguages({});
     expect(res.headers["X-Chart-Error"]).toBe("true");
     expect(res.headers["Cache-Control"]).toBe("no-store");
+  });
+
+    it("duplicate names in ?source= are counted once", async () => {
+    vi.stubEnv("GITHUB_ALLOWED_SOURCES", "*");
+    mockGitHub({ alice: { Rust: 9000 } });
+    const res = await handleLanguages({ source: "alice,alice" });
+    expect(res.headers["X-Chart-Error"]).toBeUndefined();
+    expect(global.fetch).toHaveBeenCalledTimes(2);
   });
 });

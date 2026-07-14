@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { fetchLanguageData, resetCache                   } from "../../src/github/fetch.js";
+import { fetchLanguageData, fetchSelectedSources, resetCache                   } from "../../src/github/fetch.js";
 
 const repos = [
   { name: "repo1",        fork: false, full_name: "user/repo1"        },
@@ -515,5 +515,35 @@ describe("fetchLanguageData", () => {
     expect(global.fetch).toHaveBeenCalledWith(
       "https://api.github.com/users/testuser/repos?per_page=100", {}
     );
+  });
+
+  it("strict and non-strict callers racing on a 404 each get their own semantics", async () => {
+    mockFetch().mockResolvedValue(mockErrorResponse(404, "Not Found"));
+
+    const strictP    = fetchSelectedSources(["ghost"], true);
+    const nonStrictP = fetchSelectedSources(["ghost"], false);
+
+    await expect(strictP).rejects.toThrow("Unknown GitHub account");
+    await expect(nonStrictP).resolves.toEqual({});
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("strict caller hitting the negative cache is rejected without a fetch", async () => {
+    mockFetch().mockResolvedValue(mockErrorResponse(404, "Not Found"));
+    await fetchSelectedSources(["ghost"], false);
+
+    mockFetch().mockClear();
+    await expect(fetchSelectedSources(["ghost"], false)).resolves.toEqual({});
+    await expect(fetchSelectedSources(["ghost"], true)).rejects.toThrow("Unknown GitHub account");
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it("strict caller gets an error on an uncached transient failure; non-strict gets empty data", async () => {
+    mockFetch().mockResolvedValue(mockErrorResponse(500, "Internal Server Error"));
+
+    await expect(fetchSelectedSources(["someuser"], true)).rejects.toThrow("GitHub API error: source fetch failed");
+    resetCache();
+    mockFetch().mockClear().mockResolvedValue(mockErrorResponse(500, "Internal Server Error"));
+    await expect(fetchSelectedSources(["someuser"], false)).resolves.toEqual({});
   });
 });
