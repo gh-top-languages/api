@@ -36,10 +36,12 @@ export function parseNextLink(linkHeader: string | null): string | null {
 }
 
 export function parseNames(raw: string, context: string): string[] {
-  const names = raw.split(',').map(s => s.trim()).filter(Boolean);
+  const names: string[] = [];
+  const seen = new Set<string>();
+  for (const name of raw.split(',').map(s => s.trim()).filter(Boolean)) {
+    if (!VALID_LOGIN.test(name)) throw new Error(`${context}: "${name}" is not a valid GitHub account name`);
+    if (!seen.has(name.toLowerCase())) { seen.add(name.toLowerCase()); names.push(name); }
+  }
   if (names.length === 0) throw new Error(`${context} contains no valid entries`);
-  for (const name of names) if (!VALID_LOGIN.test(name)) throw new Error(
-    `${context}: "${name}" is not a valid GitHub account name`
-  );
   return names;
 }

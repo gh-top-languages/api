@@ -25,6 +25,8 @@ describe("detectMode", () => {
     expect(() => detectMode({ GITHUB_ALLOWED_SOURCES: "ok,-bad-" })).toThrow(/not a valid/));
   it("throws on comma-only allowlist",      () =>
     expect(() => detectMode({ GITHUB_ALLOWED_SOURCES: ",," })).toThrow(/no valid entries/));
+  it("dedupes case-variant allowlist entries", () =>
+    expect(detectMode({ GITHUB_ALLOWED_SOURCES: "mason,MASON" })).toEqual({ mode: "enumerated", allowed: ["mason"] }));
 });
 
 describe("resolveSources", () => {

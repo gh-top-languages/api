@@ -558,4 +558,11 @@ describe("fetchLanguageData", () => {
     expect(global.fetch).toHaveBeenCalledTimes(2);
     expect(result).toEqual({ JavaScript: 5000, Python: 3000, HTML: 2000 });
   });
+
+  it("hosted fetches use the public users endpoint with no per-source auth", async () => {
+    vi.stubEnv("GITHUB_TOKEN", "");
+    mockFetch().mockResolvedValueOnce(mockResponse([]));
+    await expect(fetchSelectedSources(["someuser"], true)).resolves.toEqual({});
+    expect(global.fetch).toHaveBeenCalledWith("https://api.github.com/users/someuser/repos?per_page=100", {});
+  });
 });

@@ -1,5 +1,5 @@
-import { MAX_OPEN_SOURCES, VALID_LOGIN } from "./constants";
-import { parseNames } from "./parse";
+import { MAX_OPEN_SOURCES, VALID_LOGIN } from "./constants.js";
+import { parseNames                    } from "./parse.js";
 
 export type Mode =
   | { mode: "personal" }
