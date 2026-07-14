@@ -12,7 +12,7 @@ export type LanguageBytes = Record<string, number>;
 export type FetchOutcome =
   | { kind: "ok";      data: LanguageBytes }
   | { kind: "missing" }
-  | { kind: "failed";  data: LanguageBytes };
+  | { kind: "failed";  data: LanguageBytes; retryAt: number | null };
 
 export type CacheEntry = {
   data:        LanguageBytes | null;
