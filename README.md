@@ -44,12 +44,13 @@ Deployable **GitHub language chart generator** — embeddable SVGs for READMEs a
     - **Theming**: Supports `default`, `light`, and `dark` themes.
     - **Custom Colours**: Set background (`bg`), text (`text`), and individual language colours (`c1`-`c16`) via query parameters. 
 - **Dynamic Layout:** The legend automatically shifts to a **two-column layout** when displaying 9 or more languages.
-- **Global Token:** Optional deployment-wide default token, applied to any source without its own `token`, boosting limits from 60 req/hr to 5,000/hr.
-- **Hosted instances:** Serve charts for others via `?source=` — an enumerated allowlist, or `*` for any GitHub account. Hosted modes fetch public repos only.
 - **Automatically fetches GitHub repositories:** Public user and organization sources are automatically fetched; private repos can be fetched if tokens have access (personal mode only).
-- **Automatically ignores forks**.
-- **Ignored repositories**: Repos ignored via env (`IGNORED_REPOS`).
+- **Hosted instances:** Serve charts for others via `?source=` — an enumerated allowlist, or `*` for any GitHub account. Hosted modes fetch public repos only.
+- **Global Token:** Optional deployment-wide default token, applied to any source without its own `token`, boosting limits from 60 req/hr to 5,000/hr.
 - **Hourly caching**: Used to reduce API calls and improve performance. On fetch failure the last good chart is served and refresh retries after either 5 minutes, or when GitHub rate-limit timer resets.
+- **Automatically ignores forks**.
+- **Ignored repositories**: Repos ignored via optional (`IGNORED_REPOS`) env var.
+- **Preview-only deployments:** Optional `ALLOWED_REFERERS` restricts rendering to your own site — blocks README embeds and hotlinking.
 
 ## Customize Your Charts
 Prefer a visual workflow? Use the [@gh-top-languages/builder](https://github.com/gh-top-languages/builder) to preview themes, colours, and layout options interactively, then easily copy the generated embed URL to quickly deploy.
@@ -101,6 +102,7 @@ Copy `.env.example` to `.env`, and update the variables. Configure exactly one m
 #### Global
 - `IGNORED_REPOS`: Optional comma-separated repo names to exclude from the chart. Accepts a bare name (`repo`, excluded from all sources) or `owner/name` (`org/repo`, scoped to one source).
 - `GITHUB_TOKEN`: Optional deployment-wide default token, applied to any source without its own `token`. A per-source token always takes precedence; the global token only authenticates public repos (no private repos) while boosting limits (5,000 req/hr instead of 60/hr).
+- `ALLOWED_REFERERS`: Optional comma-separated hostnames. When set, charts render only for requests whose `Origin`/`Referer` hostname matches: for preview-only deployments (e.g. serving a builder site). Blocks README embeds, hotlinks, and direct navigation.
 
 #### Personal
 - `GITHUB_USERNAMES`: GitHub usernames to fetch repositories from. Accepts a single value (`masonlet`), comma-separated (`masonlet,secondlet`), or a JSON array with optional per-user tokens (`["masonlet", {"name": "other", "token": "github_pat_..."}]`).
@@ -143,6 +145,7 @@ Common error messages:
 - `GITHUB_ALLOWED_SOURCES cannot be combined with GITHUB_USERNAMES/GITHUB_ORGS`: both modes configured at once
 - `Source selection is not enabled on this instance` / `Unknown or disallowed source` / `Invalid source name` / `Too many sources`: bad `?source=` request; these are CDN-cached for 5 minutes
 - `Unknown GitHub account`: `?source=` named an account that doesn't exist (cached 10 minutes)
+- `This instance only serves its own site - deploy your own from github.com/gh-top-languages/api`: request blocked by `ALLOWED_REFERERS` (cached 5 minutes)
 - `GITHUB_USERNAMES/GITHUB_ORGS must be a valid JSON array. Check your configuration.`: malformed JSON array in env config
 - `GitHub API error: {status} {statusText}`: GitHub API request failed
 - `No language data available`: no public repositories found
