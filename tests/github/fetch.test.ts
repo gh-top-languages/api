@@ -546,4 +546,16 @@ describe("fetchLanguageData", () => {
     mockFetch().mockClear().mockResolvedValue(mockErrorResponse(500, "Internal Server Error"));
     await expect(fetchSelectedSources(["someuser"], false)).resolves.toEqual({});
   });
+
+  it("dedupes case-variant configured sources so bytes are counted once", async () => {
+    vi.stubEnv("GITHUB_USERNAMES", `["testuser", "TESTUSER"]`);
+
+    mockFetch()
+      .mockResolvedValueOnce(mockResponse(repos))
+      .mockResolvedValueOnce(mockResponse(languages));
+
+    const result = await fetchLanguageData();
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(result).toEqual({ JavaScript: 5000, Python: 3000, HTML: 2000 });
+  });
 });
