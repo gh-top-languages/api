@@ -70,7 +70,7 @@ async function fetchSource(kind: SourceKind, source: Source, strict = false): Pr
     console.error(`Skipping ${kind} "${source.name}": account not found.`);
     return {};
   }
-    if (outcome.kind === "failed" && strict) {
+  if (outcome.kind === "failed" && strict) {
     const msg = outcome.retryAt
       ? `GitHub rate limit exceeded; try again at ${new Date(outcome.retryAt).toLocaleTimeString()}`
       : "GitHub API error: source fetch failed";
