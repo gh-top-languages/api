@@ -105,3 +105,43 @@ describe("source selection", () => {
     expect(global.fetch).toHaveBeenCalledTimes(2);
   });
 });
+
+describe("referer gate", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("unset ALLOWED_REFERERS leaves the instance open", async () => {
+    const res = await handleLanguages({ test: "true" });
+    expect(res.headers["X-Chart-Error"]).toBeUndefined();
+  });
+
+  it("matching origin passes", async () => {
+    vi.stubEnv("ALLOWED_REFERERS", "builder.example.com");
+    const res = await handleLanguages({ test: "true" }, { origin: "https://builder.example.com" });
+    expect(res.headers["X-Chart-Error"]).toBeUndefined();
+  });
+
+  it("matching referer passes when origin is absent", async () => {
+    vi.stubEnv("ALLOWED_REFERERS", "builder.example.com");
+    const res = await handleLanguages({ test: "true" }, { referer: "https://builder.example.com/builder?theme=dark" });
+    expect(res.headers["X-Chart-Error"]).toBeUndefined();
+  });
+
+  it("foreign referer is blocked with a cacheable error", async () => {
+    vi.stubEnv("ALLOWED_REFERERS", "builder.example.com");
+    const res = await handleLanguages({ test: "true" }, { referer: "https://freeloader.example.com/" });
+    expect(res.headers["X-Chart-Error"]).toBe("true");
+    expect(res.headers["Cache-Control"]).toBe("public, max-age=300");
+  });
+
+  it("missing referer is blocked (camo/hotlink case)", async () => {
+    vi.stubEnv("ALLOWED_REFERERS", "builder.example.com");
+    const res = await handleLanguages({ test: "true" });
+    expect(res.headers["X-Chart-Error"]).toBe("true");
+  });
+
+  it("substring lookalike host is blocked", async () => {
+    vi.stubEnv("ALLOWED_REFERERS", "builder.example.com");
+    const res = await handleLanguages({ test: "true" }, { referer: "https://builder.example.com.evil.com/" });
+    expect(res.headers["X-Chart-Error"]).toBe("true");
+  });
+});

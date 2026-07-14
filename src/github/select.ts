@@ -48,3 +48,16 @@ export function resolveSources(param: string | undefined, mode: Mode): string[] 
     return hit;
   }))];
 }
+
+export function checkReferer(rawReferer: string | undefined, env: NodeJS.ProcessEnv): void {
+  const allowed = env["ALLOWED_REFERERS"]?.trim();
+  if (!allowed) return;
+
+  const hosts = allowed.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  let host: string | null = null;
+  try { host = rawReferer ? new URL(rawReferer).hostname.toLowerCase() : null; } catch { /* malformed header */ }
+
+  if (!host || !hosts.includes(host)) throw new SelectionError(
+    "This instance only serves its own site - deploy your own from github.com/gh-top-languages/api"
+  );
+}

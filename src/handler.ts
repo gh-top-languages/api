@@ -3,7 +3,7 @@ import { parseQueryParams, type QueryParams } from "@gh-top-languages/lib/utils/
 import { generateChartData                  } from "@gh-top-languages/lib/charts/generate.js";
 import { renderSvg                          } from "@gh-top-languages/lib/render/svg.js";
 import { renderError                        } from "@gh-top-languages/lib/render/error.js";
-import { detectMode, resolveSources, SelectionError                   } from "./github/select.js";
+import { checkReferer, detectMode, resolveSources, SelectionError     } from "./github/select.js";
 import { fetchLanguageData, fetchSelectedSources, SourceNotFoundError } from "./github/fetch.js";
 import { processLanguageData                                          } from "./github/process.js";
 
@@ -18,12 +18,17 @@ export type RawQuery = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined): string | undefined =>
   Array.isArray(v) ? v[0] : v;
 
-export async function handleLanguages(rawQuery: RawQuery): Promise<ChartResponse> {
+export async function handleLanguages(
+  rawQuery: RawQuery,
+  rawHeaders: RawQuery = {}
+): Promise<ChartResponse> {
   const query: QueryParams = Object.fromEntries(
     Object.entries(rawQuery).map(([k, v]) => [k, first(v)])
   );
 
   try {
+    checkReferer(first(rawHeaders["origin"]) ?? first(rawHeaders["referer"]), process.env);
+
     const {
       chartType, chartTitle,
       width, height, count,

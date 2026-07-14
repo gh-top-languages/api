@@ -19,7 +19,7 @@ export function startServer(port: number): Server {
         return;
       }
 
-      const { status, headers, body } = await handleLanguages(queryFromUrl(url));
+      const { status, headers, body } = await handleLanguages(queryFromUrl(url), req.headers as RawQuery);
       res.writeHead(status, headers);
       res.end(body);
     } catch {
