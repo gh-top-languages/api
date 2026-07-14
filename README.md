@@ -134,7 +134,13 @@ npm start
 ```
 
 Or, deploy with Vercel:
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/gh-top-languages/api&env=GITHUB_USERNAMES,GITHUB_ORGS,GITHUB_ALLOWED_SOURCES,GITHUB_TOKEN,IGNORED_REPOS,ALLOWED_REFERERS&envDescription=Personal%20mode%3A%20GITHUB_USERNAMES%20and%2For%20GITHUB_ORGS%2C%20GitHub%20users%2Forgs%20to%20fetch%20repos%20from.%20Hosted%20mode%3A%20GITHUB_ALLOWED_SOURCES%2C%20account%20names%20selectable%20via%20%3Fsource%3D%2C%20or%20*%20for%20any%20account%20%28cannot%20combine%20with%20personal%20vars%29.%20GITHUB_TOKEN%3A%20optional%20global%20token%20for%20higher%20rate%20limits.%20IGNORED_REPOS%3A%20optional%20repos%20to%20exclude%20%28bare%20name%20or%20owner%2Fname%29.%20ALLOWED_REFERERS%3A%20optional%20hostnames%20to%20restrict%20rendering%20to%20%28preview-only%20instances%29.&envLink=https%3A%2F%2Fgithub.com%2Fgh-top-languages%2Fapi%23configuration)
+**Personal** instance (your own chart):
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/gh-top-languages/api&env=GITHUB_USERNAMES&envDescription=Your%20GitHub%20username%28s%29%2C%20comma-separated.%20Optional%20vars%20%28GITHUB_ORGS%2C%20GITHUB_TOKEN%2C%20IGNORED_REPOS%29%20are%20documented%20at%20the%20link%20and%20can%20be%20added%20in%20Vercel%20project%20settings.&envLink=https%3A%2F%2Fgithub.com%2Fgh-top-languages%2Fapi%23configuration)
+
+**Hosted** instance (serve charts for others via `?source=`):
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/gh-top-languages/api&env=GITHUB_ALLOWED_SOURCES&envDescription=Account%20names%20to%20allow%2C%20comma-separated%2C%20or%20*%20for%20any%20account.%20Strongly%20recommended%3A%20add%20GITHUB_TOKEN%20in%20Vercel%20settings%20%28*%20mode%20is%20nearly%20unusable%20at%2060%20req%2Fhr%20without%20one%29.%20See%20link%20for%20all%20options.&envLink=https%3A%2F%2Fgithub.com%2Fgh-top-languages%2Fapi%23configuration)
 
 ## Error Responses
 
