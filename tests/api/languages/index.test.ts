@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { VercelRequest, VercelResponse              } from "@vercel/node";
-import { parseQueryParams    } from "@gh-top-languages/lib/utils/params.js";
 import type { ChartResult    } from "@gh-top-languages/lib/charts/types.js";
+import { parseQueryParams    } from "@gh-top-languages/lib/utils/params.js";
 import { generateChartData   } from "@gh-top-languages/lib/charts/generate.js";
 import { renderSvg           } from "@gh-top-languages/lib/render/svg.js";
 import { renderError         } from "@gh-top-languages/lib/render/error.js";
-import   handler                from "../../../api/languages/index.js";
+import type { VercelRequest, VercelResponse } from "../../../src/vercel.js";
+import   handler               from "../../../api/languages/index.js";
 import { fetchLanguageData   } from "../../../src/github/fetch.js";
 import { processLanguageData } from "../../../src/github/process.js";
 
