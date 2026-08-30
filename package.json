@@ -33,7 +33,7 @@
     "@gh-top-languages/lib": "^1.2.4"
   },
   "devDependencies": {
-    "@types/node": "^25.3.1",
+    "@types/node": "^26.2.0",
     "@vitest/coverage-v8": "^4.0.17",
     "typescript": "~6.0.2",
     "vitest": "^4.1.11"
