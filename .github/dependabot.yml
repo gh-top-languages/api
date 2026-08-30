@@ -6,6 +6,7 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 7
+      exclude: ["@gh-top-languages/*"]
     commit-message:
       prefix: "chore"
       include: "scope"
@@ -16,6 +17,7 @@ updates:
       interval: "monthly"
     cooldown:
       default-days: 7
+      exclude: ["gh-top-languages/*"]
     commit-message:
       prefix: "chore"
       include: "scope"
