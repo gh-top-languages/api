@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelRequest, VercelResponse } from "../../src/vercel.js";
 import { handleLanguages                    } from "../../src/handler.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
