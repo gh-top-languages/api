@@ -10,6 +10,9 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      vitest:
+        patterns: ["vitest", "@vitest/*"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
